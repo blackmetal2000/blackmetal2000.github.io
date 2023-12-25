@@ -49,7 +49,6 @@ No código, primeiro é aberto um handle pro LSASS com o acesso `PROCESS_CREATE_
 ```
 
 > `PROCESS_CREATE_PROCESS²`: permissão necessária criar uma fork (clone) de um processo alvo.
-> `NtCreateProcessEx³`: API utilizada para criar um fork do processo (LSASS). 
 {: .prompt-info }
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
