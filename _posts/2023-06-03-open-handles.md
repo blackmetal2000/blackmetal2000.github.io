@@ -15,7 +15,7 @@ Contextualizando: durante meus estudos de Windows API, estive aprofundando em t�
 
 ![Desktop View](https://i.imgur.com/RBZ4JSv.png)
 
-No código, eu primeiro abria um handle pro LSASS com o acesso `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`. Esse erro ocorre devido a privilégios insuficientes dados ao handle.
+No código, primeiro é aberto um handle pro LSASS com o acesso `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`. Esse erro ocorre devido a privilégios insuficientes dados ao handle.
 
 ```csharp
 	uint accessParentProcess = PROCESS_CREATE_PROCESS;
