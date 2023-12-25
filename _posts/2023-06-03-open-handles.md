@@ -47,6 +47,7 @@ if (ningning == 0)
 ```
 
 > `PROCESS_CREATE_PROCESS²`: permissão necessária criar uma fork (clone) de um processo alvo.
+> `NtCreateProcessEx³`: API utilizada para criar um fork do processo (LSASS).
 {: .prompt-info }
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
