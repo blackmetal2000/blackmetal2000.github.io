@@ -83,6 +83,20 @@ Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LS
 public enum SYSTEM_INFORMATION_CLASS
 { SystemHandleInformation = 16 }
 
+public struct SYSTEM_HANDLE_INFORMATION {
+	public uint Count;
+	public SYSTEM_HANDLE_TABLE_ENTRY_INFO Handle;
+}
+
+public struct SYSTEM_HANDLE_TABLE_ENTRY_INFO
+{
+	public ushort UniqueProcessId;
+	public byte HandleAttributes;
+	public ushort HandleValue;
+	public IntPtr Object;
+	public uint GrantedAccess;
+}
+
 [DllImport("ntdll.dll")]
 public static extern NTSTATUS NtQuerySystemInformation(
 	[In]  SYSTEM_INFORMATION_CLASS SystemInformationClass,
@@ -95,10 +109,17 @@ public static extern NTSTATUS NtQuerySystemInformation(
 Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e pede alguns valores importantes. São eles:
 
 - `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
-- `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas da API. Neste caso, as informações dos handles em abertos.
+- `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.
 - `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo SystemInformation.
 - `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`.
 
 > - `NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
 > - `SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
 {: .prompt-info }
+
+O valor retornado pelo `SystemInformation` é um struct `SYSTEM_HANDLE_INFORMATION`, como visto no código. Nele, é retornado dois valores:
+
+- `Count`: número de handles abertos.
+- `Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
+
+Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`. Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
