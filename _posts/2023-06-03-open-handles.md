@@ -10,7 +10,7 @@ tags: [Red Team]
 > - `PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
 {: .prompt-info }
 
-<p style="text-align: center;">Contextualizando: durante meus estudos de Windows API, estive aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.</p>
+Contextualizando: durante meus estudos de Windows API, estive aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
 
 ![Desktop View](https://i.imgur.com/RBZ4JSv.png)
 
