@@ -54,6 +54,6 @@ if (ningning == 0)
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
 
-<p style="text-align: center;">Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.</p>
+<p style="width: 100%; margin: 0;">Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.</p>
 
 ![Desktop View](https://i.imgur.com/oAHfhBb.png){: width="300" height="100" }
