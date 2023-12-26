@@ -5,17 +5,17 @@ categories: [Windows]
 tags: [Red Team]
 ---
 
-<p style="width: 100%; margin: 0;">Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenados (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.</p>
+Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenados (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.
 
 > - `PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
 {: .prompt-info }
 
-<p style="width: 100%; margin: 0;">Contextualizando: durante meus estudos de Windows API, estive aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.</p>
+Contextualizando: durante meus estudos de Windows API, estive aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
 
 ![Desktop View](https://i.imgur.com/RBZ4JSv.png)
 
-<p style="width: 100%; margin: 0;">No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`.
-</p>
+No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`.
+
 
 ```csharp
 uint accessParentProcess = PROCESS_CREATE_PROCESS;
@@ -50,10 +50,10 @@ if (ningning == 0)
 > - `NtCreateProcessEx³`: API utilizada para criar um fork do processo LSASS. 
 {: .prompt-info }
 
-<p style="width: 100%; margin: 0;">Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa "Process Hacker", nos deparamos com algo bastante interessante: </p>
+Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa "Process Hacker", nos deparamos com algo bastante interessante:
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
 
-<p style="width: 100%; margin: 0;">Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.</p>
+Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.
 
 ![Desktop View](https://i.imgur.com/oAHfhBb.png){: width="300" height="100" }
