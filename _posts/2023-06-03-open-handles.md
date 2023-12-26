@@ -123,3 +123,25 @@ O valor retornado pelo `SystemInformation` é um struct `SYSTEM_HANDLE_INFORMATI
 - `Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
 
 Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`. Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
+
+```csharp
+var systemHandleInformation = new Netdump.Tables.SYSTEM_HANDLE_INFORMATION();
+
+var systemInformationLength = Marshal.SizeOf(systemHandleInformation);
+var systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength);
+
+var resultLength = 0;
+
+while ( Netdump.Invokes.NtQuerySystemInformation(
+	Netdump.Tables.SYSTEM_INFORMATION_CLASS.SystemHandleInformation,
+	systemInformationPtr,
+	systemInformationLength,
+	ref resultLength ) == Netdump.Tables.NTSTATUS.STATUS_INFO_LENGTH_MISMATCH )
+{
+	systemInformationLength = resultLength;
+	Marshal.FreeHGlobal(systemInformationPtr);
+	systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength);
+	Console.WriteLine($"[!] (NtQuerySystemInformation) Alocando mais memória: {systemInformationLength}");
+}
+
+```
