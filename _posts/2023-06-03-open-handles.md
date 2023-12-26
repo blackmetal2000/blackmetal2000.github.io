@@ -77,6 +77,7 @@ Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LS
 #### NtQuerySystemInformation⁵
 
 > - `NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
+{: .prompt-info }
 
 ```csharp
 public enum SYSTEM_INFORMATION_CLASS
