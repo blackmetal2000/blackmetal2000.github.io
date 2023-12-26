@@ -68,7 +68,7 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 ![Desktop View](https://i.imgur.com/1RQOTf1.png)
 
-Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_QUERY_INFORMATION⁴`  e `PROCESS_VM_READ`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
+Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
 
 > - `PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
 {: .prompt-info }
@@ -285,4 +285,4 @@ Netdump.Invokes.CloseHandle(hDuplicate);
 Netdump.Invokes.CloseHandle(hObject);
 ```
 
-Para duplicarmos um handle, precisamos de uma permissão crucial: `PROCESS_DUP_HANDLE⁹`. É esta permissão que será solicitada na abertura de um novo handle ao processo alvo (o de PID 6020, conforme visto no Process Hacker. É este processo que queremos porque é ele que possui o handle pro LSASS). Feito isso, é chamada a API `NtDuplicateObject` para a duplicação do handle. O `hObject` é o identificador do handle que queremos duplicar. Pegamos este identificador graças a API `NtQuerySystemInformation`. E, por último, representado pelo `hDuplicate`, o handle duplicado! Mas não se engane: este ainda não é o handle do LSASS! :P
+Para duplicarmos um handle, precisamos de uma permissão crucial: `PROCESS_DUP_HANDLE⁹`. É esta permissão que será solicitada na abertura de um novo handle ao processo alvo (o de PID 6020, conforme visto no Process Hacker. É este processo que queremos porque é ele que possui o handle pro LSASS). Feito isso, é chamada a API para a duplicação do handle. O `hObject` é o identificador do handle que queremos duplicar. Pegamos este identificador graças a API `NtQuerySystemInformation`. E, por último, representado pelo `hDuplicate`, o handle duplicado! Mas não se engane: este ainda não é o handle do LSASS! :P
