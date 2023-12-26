@@ -143,5 +143,4 @@ while ( Netdump.Invokes.NtQuerySystemInformation(
 	systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength);
 	Console.WriteLine($"[!] (NtQuerySystemInformation) Alocando mais memória: {systemInformationLength}");
 }
-
 ```
