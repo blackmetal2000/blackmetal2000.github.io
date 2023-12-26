@@ -58,7 +58,7 @@ Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS
 
 ![Desktop View](https://i.imgur.com/oAHfhBb.png){: width="300" height="100" }
 
-### Handles também podem ser reciclados!
+## Handles também podem ser reciclados!
 
 Como foi visto, não é possível solicitar a abertura de um handle ao LSASS sem que o AV barre a atribuição dos privilégios necessários para o dump. Mas, e se algum programa legítimo já tiver aberto um handle? A pergunta é facilmente respondida com o Process Hacker. Nele, uma funcionalidade que busca por handles filtrados pelo nome.
 
@@ -74,7 +74,7 @@ Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LS
 {: .prompt-info }
 
 
-#### NtQuerySystemInformation⁵
+## NtQuerySystemInformation⁵
 
 > - `NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
 {: .prompt-info }
@@ -154,7 +154,7 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 
 ![Desktop View](https://i.imgur.com/G8XcKmQ.png)
 
-Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo. Com isso, é criado um dicionário que armazenará informações sobre os handles.
+Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo. Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
 ```csharp
@@ -188,8 +188,10 @@ Netdump.Invokes.CloseHandle(systemInformationPtr);
 Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são somente duas: PID e AccessRights. Como são muitos handles, com muitos PIDs diferentes, será criado um `if` para filtrar somente pelo PID que contém o handle pro LSASS (como foi visto pelo Process Hacker).
 
 ```csharp
-public enum PROCESS_ACCESS : uint // struct contendo algumas permissões de processos.
-{								  // neste caso, precisamos somente da PROCESS_VM_READ, mas fica ao seu critério.
+public enum PROCESS_ACCESS : uint 
+{
+	// struct contendo algumas permissões de processos.
+	// neste caso, precisamos somente da PROCESS_VM_READ, mas fica ao seu critério.
 	PROCESS_TERMINATE = 0x0001,
 	PROCESS_CREATE_THREAD = 0x0002,
 	PROCESS_SET_SESSIONID = 0x0004,
@@ -224,7 +226,7 @@ foreach (var index in handles)
 
 ![Desktop View](https://i.imgur.com/J4yNvkg.png)
 
-#### NtDuplicateObject⁸
+## NtDuplicateObject⁸
 
 > - `NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
 {: .prompt-info }
