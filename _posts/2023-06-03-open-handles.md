@@ -12,9 +12,6 @@ Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado of
 
 Nos últimos tempos, estive me aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
 
-  Nos últimos tempos, estive me aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
-
-
 ![Desktop View](https://i.imgur.com/RBZ4JSv.png)
 
 No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`.
@@ -71,7 +68,36 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 ![Desktop View](https://i.imgur.com/1RQOTf1.png)
 
-Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: o `PROCESS_QUERY_INFORMATION⁴`  e `PROCESS_VM_READ`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, para que possamos interagir com este handle, primeiro precisamos seguir alguns passos.
+Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_QUERY_INFORMATION⁴`  e `PROCESS_VM_READ`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
 
 > - `PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
+{: .prompt-info }
+
+
+#### NtQuerySystemInformation⁵
+
+> - `NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
+
+```csharp
+public enum SYSTEM_INFORMATION_CLASS
+{ SystemHandleInformation = 16 }
+
+[DllImport("ntdll.dll")]
+public static extern NTSTATUS NtQuerySystemInformation(
+	[In]  SYSTEM_INFORMATION_CLASS SystemInformationClass,
+	[Out] IntPtr SystemInformation,
+	[In]  int SystemInformationLength,
+	[In]  ref int ReturnLength
+);
+```
+
+Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e pede alguns valores importantes. São eles:
+
+- `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
+- `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas da API. Neste caso, as informações dos handles em abertos.
+- `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo SystemInformation.
+- `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`.
+
+> - `NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
+> - `SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
 {: .prompt-info }
