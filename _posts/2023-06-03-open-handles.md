@@ -111,7 +111,7 @@ Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e
 - `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
 - `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.
 - `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo SystemInformation.
-- `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`.
+- `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
 
 > - `NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
 > - `SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
@@ -127,8 +127,8 @@ Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza
 ```csharp
 var systemHandleInformation = new Netdump.Tables.SYSTEM_HANDLE_INFORMATION();
 
-var systemInformationLength = Marshal.SizeOf(systemHandleInformation);
-var systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength);
+var systemInformationLength = Marshal.SizeOf(systemHandleInformation); // armazenando o tamanho do systemHandleInformation
+var systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength); // alocando memória ao systemInformationLength 
 
 var resultLength = 0;
 
@@ -138,9 +138,18 @@ while ( Netdump.Invokes.NtQuerySystemInformation(
 	systemInformationLength,
 	ref resultLength ) == Netdump.Tables.NTSTATUS.STATUS_INFO_LENGTH_MISMATCH )
 {
-	systemInformationLength = resultLength;
-	Marshal.FreeHGlobal(systemInformationPtr);
-	systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength);
+	systemInformationLength = resultLength; // precisa ser do mesmo tamanho
+	Marshal.FreeHGlobal(systemInformationPtr); // liberando memória
+	systemInformationPtr = Marshal.AllocHGlobal(systemInformationLength); // atribuindo a nova memória baseada no valor do resultLength
 	Console.WriteLine($"[!] (NtQuerySystemInformation) Alocando mais memória: {systemInformationLength}");
 }
 ```
+Quando sair do loop, memória suficiente já terá sido alocada e um NTSTATUS de `STATUS_SUCCESS` será retornado, simbolizando sucesso na chamada da API. Com isso, o ponteiro `systemInformationPtr` armazenará dois tipos de informações: o número de handles em aberto e informações sobre eles.
+
+```csharp
+var numberOfHandles = Marshal.ReadInt64(systemInformationPtr);
+
+Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
+```
+
+![Desktop View](https://i.imgur.com/NmRBvFq.png)
