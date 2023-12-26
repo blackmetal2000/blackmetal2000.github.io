@@ -71,7 +71,7 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 ![Desktop View](https://i.imgur.com/1RQOTf1.png)
 
-Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_QUERY_INFORMATION⁴`  e `PROCESS_VM_READ`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, para que possamos interagir com este handle, primeiro precisamos seguir alguns passos.
+Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: o `PROCESS_QUERY_INFORMATION⁴`  e `PROCESS_VM_READ`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, para que possamos interagir com este handle, primeiro precisamos seguir alguns passos.
 
 > - `PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
 {: .prompt-info }
