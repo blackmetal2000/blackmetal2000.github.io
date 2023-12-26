@@ -152,4 +152,4 @@ var numberOfHandles = Marshal.ReadInt64(systemInformationPtr);
 Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 ```
 
-![Desktop View](https://i.imgur.com/NmRBvFq.png)
+![Desktop View](https://i.imgur.com/G8XcKmQ.png)
