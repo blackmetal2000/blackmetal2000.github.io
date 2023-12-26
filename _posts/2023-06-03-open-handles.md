@@ -56,4 +56,4 @@ Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do cód
 
 Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.
 
-![Desktop View](https://i.imgur.com/oAHfhBb.png)
+![Desktop View](https://i.imgur.com/oAHfhBb.png){: width="300" height="100" }
