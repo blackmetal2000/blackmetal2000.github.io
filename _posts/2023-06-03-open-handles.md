@@ -369,7 +369,7 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase)) // checand
 
 No código acima, será acessado o valor `TypeName` de cada handle que está representado no valor `hDuplicate`. Caso o tipo do handle seja de "Process", o PID do processo e o identificador do handle é exibido.
 
-![Desktop View](https://i.imgur.com/kRelr66.png)
+![Desktop View](https://i.imgur.com/dCGSO4d.png)
 
 ## QueryFullProcessImageName¹²
 
@@ -403,4 +403,4 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase))
 
 Feito isso, a API retornará o caminho do executável referente ao processo referenciado no `hDuplicate`.
 
-![Desktop View](https://i.imgur.com/XHuRhfT.png)
+![Desktop View](https://i.imgur.com/mXJ4rvQ.png)
