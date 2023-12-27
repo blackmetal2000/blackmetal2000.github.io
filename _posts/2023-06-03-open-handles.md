@@ -154,7 +154,7 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 
 ![Desktop View](https://i.imgur.com/DK8TlfC.png)
 
-Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo.
+Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo. <br>
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
