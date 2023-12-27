@@ -7,7 +7,7 @@ tags: [Red Team]
 
 Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.
 
-> - `PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
+>`PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
 {: .prompt-info }
 
 Nos últimos tempos, estive me aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
@@ -46,8 +46,8 @@ if (ningning == 0)
 }
 ```
 
-> - `PROCESS_CREATE_PROCESS²`: permissão necessária criar um fork (clone) de um processo alvo.
-> - `NtCreateProcessEx³`: API utilizada para criar um fork do processo LSASS. 
+>`PROCESS_CREATE_PROCESS²`: permissão necessária criar um fork (clone) de um processo alvo.
+>`NtCreateProcessEx³`: API utilizada para criar um fork do processo LSASS. 
 {: .prompt-info }
 
 Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa Process Hacker, nos deparamos com algo bastante interessante:
@@ -70,13 +70,13 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta primeira permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
 
-> - `PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
+>`PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
 {: .prompt-info }
 
 
 ## NtQuerySystemInformation⁵
 
-> - `NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
+>`NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
 {: .prompt-info }
 
 ```csharp
@@ -107,20 +107,14 @@ public static extern NTSTATUS NtQuerySystemInformation(
 ```
 
 Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e pede alguns valores importantes. São eles:
+`SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.`SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.`SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.`ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
 
-- `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
-- `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.
-- `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.
-- `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
-
-> - `NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
-> - `SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
+>`NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
+>`SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
 {: .prompt-info }
 
 O valor retornado pelo `SystemInformation` é um struct `SYSTEM_HANDLE_INFORMATION`, como visto no código. Nele, é retornado dois valores:
-
-- `Count`: número de handles abertos.
-- `Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
+`Count`: número de handles abertos.`Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
 
 Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`. Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
 
@@ -230,7 +224,7 @@ foreach (var index in handles)
 
 ## NtDuplicateObject⁸
 
-> - `NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
+>`NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
 {: .prompt-info }
 
 Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
@@ -289,12 +283,12 @@ Netdump.Invokes.CloseHandle(hObject);
 
 Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
 
-> - `PROCESS_DUP_HANDLE⁹`: permissão necessária para duplicar um handle.
+>`PROCESS_DUP_HANDLE⁹`: permissão necessária para duplicar um handle.
 {: .prompt-info }
 
 ## NtQueryObject¹¹
 
-> - `NtQueryObject¹¹`: API utilizada para filtrar informações de um objeto.
+>`NtQueryObject¹¹`: API utilizada para filtrar informações de um objeto.
 {: .prompt-info }
 
 Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: "Process", "Keys", "Files", "Threads", entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
@@ -343,7 +337,7 @@ while (Netdump.Invokes.NtQueryObject(
 }
 ```
 
-> - `OBJECT_INFORMATION_CLASS`: um enum que representa o tipo de informação que será retornado do objeto.
+>`OBJECT_INFORMATION_CLASS`: um enum que representa o tipo de informação que será retornado do objeto.
 {: .prompt-info }
 
 A lógica continua a mesma: a cada vez que a API retornar o erro de `STATUS_INFO_LENGTH_MISMATCH`, mais memória será alocada ao `ObjectInformationLength` até completar o valor necessário para cobrir a resposta da API.
@@ -375,7 +369,7 @@ No código acima, será acessado o valor `TypeName` de cada handle que está rep
 
 ## QueryFullProcessImageName¹²
 
-> - `QueryFullProcessImageName¹²`: API utilizada para descobrir o path do executável de um processo.
+>`QueryFullProcessImageName¹²`: API utilizada para descobrir o path do executável de um processo.
 {: .prompt-info }
 
 Partindo para a penúltima etapa, agora será necessário descobrir o caminho do executável que está sendo referenciado no `hDuplicate`. Para isso, a API `QueryFullProcessImageName` se faz presente para cumprir esta função. Esta API é útil para, futurarmente, filtrarmos pelo processo "lsass.exe", onde desde o início foi o nosso alvo.
@@ -432,7 +426,7 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 
 ## MiniDumpWriteDump¹³
 
-> - `MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo Comumente utilizada em ataques no LSASS.
+>`MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo. Comumente utilizada em ataques no LSASS.
 {: .prompt-info }
 
 Maravilha! Depois de todos esses processos, finalmente possuímos um handle válido pro LSASS! E com permissões de leitura de memória! Agora, será possível realizar o dump do processo.
@@ -482,3 +476,8 @@ E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de
 
 > Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo num arquivo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
 {: .prompt-warning }
+
+## Conclusão
+
+Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso. Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
+Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
