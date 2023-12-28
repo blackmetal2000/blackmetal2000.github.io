@@ -339,9 +339,7 @@ public static extern NTSTATUS NtQueryObject(
 );
 ```
 >`OBJECT_INFORMATION_CLASS`: um enum que representa a categoria de informação que será retornado do objeto.
-{: .prompt-info }
-
->`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
+`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
 {: .prompt-info }
 
 > O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado retornado deste será filtrado posteriormente pelo struct.
