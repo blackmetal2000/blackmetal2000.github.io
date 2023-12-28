@@ -523,7 +523,7 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 
 <https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation>
 
-<https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-zwduplicateobject>
+<https://malapi.io/winapi/NtDuplicateObject>
 
 <https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryobject>
 
