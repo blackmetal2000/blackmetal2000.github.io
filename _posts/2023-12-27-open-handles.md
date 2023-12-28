@@ -162,7 +162,7 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo.
 
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
-Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
+Posteriormente, um loop que passará por todos eles através do `numberOfHandles`. É neste loop que obteremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
 ```csharp
 public static void IterateHandles(long numberOfHandles, IntPtr systemInformationPtr)
@@ -177,7 +177,7 @@ public static void IterateHandles(long numberOfHandles, IntPtr systemInformation
 
 		handleEntryPtr = new IntPtr((long)handleEntryPtr + Marshal.SizeOf(handleTableEntry)); // avançando o ponteiro para a próxima entrada
 		
-		if (!handles.ContainsKey(handleTableEntry.UniqueProcessId)) // acessando a tabela SYSTEM_HANDLE_TABLE_ENTRY_INFO, verificar o UniqueProcessId
+		if (!handles.ContainsKey(handleTableEntry.UniqueProcessId)) // verificando o UniqueProcessId (PID) pelo SYSTEM_HANDLE_TABLE_ENTRY_INFO
 		{
 			handles.Add(handleTableEntry.UniqueProcessId, new List<Netdump.Tables.SYSTEM_HANDLE_TABLE_ENTRY_INFO>());
 			// adicionando o PID se ele ainda não tiver catalogado no dicionário
@@ -193,6 +193,8 @@ Netdump.Invokes.CloseHandle(systemInformationPtr);
 ```
 
 Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são somente duas: PID e AccessRights.
+
+- AccessRights: privilégios de acesso do handle. Buscamos por handles que contenham `PROCESS_VM_READ`.
 
 Como são muitos handles, com muitos PIDs diferentes, será criado um `if` para filtrar somente pelo PID que contém o handle pro LSASS (como foi visto pelo Process Hacker).
 
@@ -226,6 +228,10 @@ foreach (var index in handles)
 				foreach (Netdump.Tables.PROCESS_ACCESS accessRight in Enum.GetValues(typeof(Netdump.Tables.PROCESS_ACCESS)))
 				{
 					Console.WriteLine($"O identificador do handle é: {handleStruct.HandleValue}. e seus privilégios são: {accessRight.ToString()}");
+
+					// obs: neste caso, é bom criar um "if" filtrando pelo PROCESS_ACCESS de PROCESS_VM_READ
+					// if (accessRight.ToString() == "PROCESS_VM_READ") ...
+					// estou mostrando todas as permissões de todos os handles para fins demonstrativos
 				}
 			}
 		}
@@ -247,8 +253,9 @@ Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo pas
 public enum DUPLICATE_OPTION_FLAGS : uint
 {
 	CLOSE_SOURCE = 0x00000001,
-	SAME_ACCESS = 0x00000002,
-	SAME_ATTRIBUTES = 0x00000004
+	SAME_ACCESS = 0x00000002, // herda os privilégios de acessos do handle pai ao handle clonado
+	SAME_ATTRIBUTES = 0x00000004 // herda os atributos do handle pai ao handle clonado
+
 }
 
 [DllImport("ntdll.dll")]
@@ -262,6 +269,8 @@ public static extern NTSTATUS NtDuplicateObject(
 	DUPLICATE_OPTION_FLAGS Options
 );
 ```
+
+Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
 
 ```csharp
 uint acessOriginal = PROCESS_DUP_HANDLE; // setando privilégios de acesso
@@ -294,8 +303,6 @@ Netdump.Invokes.CloseHandle(hDuplicate);
 Netdump.Invokes.CloseHandle(hObject);
 ```
 
-Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
-
 >`PROCESS_DUP_HANDLE⁹`: permissão necessária para duplicar um handle.
 {: .prompt-info }
 
@@ -304,9 +311,15 @@ Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HA
 >`NtQueryObject¹¹`: API utilizada para filtrar informações de um objeto.
 {: .prompt-info }
 
-Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: "Process", "Keys", "Files", "Threads", entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
+Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: `Process`, `Keys`, `Files`, `Threads`, entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
 
 ```csharp
+[StructLayout(LayoutKind.Sequential, Pack = 1)]
+public struct OBJECT_TYPE_INFORMATION
+{
+	public UNICODE_STRING TypeName; // retorna o tipo do handle
+}
+
 public enum OBJECT_INFORMATION_CLASS : uint
 {
 	ObjectBasicInformation = 0,
@@ -325,6 +338,12 @@ public static extern NTSTATUS NtQueryObject(
 	ref int ReturnLength
 );
 ```
+>`OBJECT_INFORMATION_CLASS`: um enum que representa a categoria de informação que será retornado do objeto.
+>`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
+{: .prompt-info }
+
+> O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado retornado deste será filtrado posteriormente pelo struct.
+{: .prompt-warning }
 
 Similarmente a API `NtQuerySystemInformation`, também não sabemos o tamanho do resultado que a função retornará.
 
@@ -349,9 +368,6 @@ while (Netdump.Invokes.NtQueryObject(
 	ObjectInformation = Marshal.AllocHGlobal(ObjectInformationLength);
 }
 ```
-
->`OBJECT_INFORMATION_CLASS`: um enum que representa o tipo de informação que será retornado do objeto.
-{: .prompt-info }
 
 A lógica continua a mesma: a cada vez que a API retornar o erro de `STATUS_INFO_LENGTH_MISMATCH`, mais memória será alocada ao `ObjectInformationLength` até completar o valor necessário para cobrir a resposta da API.
 
