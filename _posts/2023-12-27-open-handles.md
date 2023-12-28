@@ -1,6 +1,6 @@
 ---
 title: "A reciclagem também está presente nos handles."
-date: 2023-06-03 00:00:00 +0800
+date: 2023-12-27 00:00:00 +0800
 categories: [Windows, LSASS]
 tags: [Red Team]
 ---
