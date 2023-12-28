@@ -1,11 +1,11 @@
 ---
 title: "A reciclagem também está presente nos handles."
-date: 2023-06-03 00:00:00 +0800
+date: 2023-12-27 00:00:00 +0800
 categories: [Windows, LSASS]
 tags: [Red Team]
 ---
 
-Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ` ao LSASS se torna tudo o que um atacante quer.
+Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ¹` ao LSASS se torna tudo o que um atacante quer.
 
 >`PROCESS_VM_READ¹`: permissão necessária para a leitura da memória (dump) de um processo. 
 {: .prompt-info }
@@ -420,13 +420,13 @@ if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 
 ![Desktop View](https://i.imgur.com/Ykf8Jw0.png)
 
-E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e ver as permissões que o handle possui. Se tudo estiver certo, o handle duplicado do LSASS terá herdado as mesmas permissões que o handle original do LSASS (`PROCESS_QUERY_INFORMATION` e `PROCESS_VM_READ`.)
+E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e ver as permissões que o handle possui. Se tudo estiver certo, o handle duplicado do LSASS terá herdado as mesmas permissões que o handle original (`PROCESS_QUERY_INFORMATION` e `PROCESS_VM_READ`).
 
 ![Desktop View](https://i.imgur.com/g8SRVNL.png)
 
 ## MiniDumpWriteDump¹³
 
->`MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo. Comumente utilizada em ataques no LSASS.
+>`MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo. Comumente utilizada em ataques ao LSASS.
 {: .prompt-info }
 
 Maravilha! Depois de todos esses processos, finalmente possuímos um handle válido pro LSASS! E com permissões de leitura de memória! Agora, será possível realizar o dump do processo.
@@ -474,10 +474,18 @@ if (result == true) { Console.WriteLine("[+] (MiniDumpWriteDump) Dump realizado 
 
 E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de usuários e suas respectivas hashes NT são de se esperar na leitura deste arquivo, que pode ser feita utilizando a ferramenta `pypykatz`.
 
-> Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo num arquivo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
+> Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
 {: .prompt-warning }
 
 ## Conclusão
 
-Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso. Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
-Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
+Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LSASS feito pelo antivírus e, a partir desta barreira, buscamos compreender métodos alternativos que nos levasse ao nosso objetivo. Em nossa trajetória, percorremos desde o entendimento básico do ataque até ao íntimo do sistema operacional Windows. Variedades de conhecimentos foram abordados nesta leitura, tais como:
+
+- Programação;
+- Windows API;
+- Ataques ao sistema operacional;
+- Evasão de softwares de defesas.
+
+É de se ressaltar que, ao término deste artigo, buscamos alcançar uma mentalidade primordial na segurança ofensiva: entender como ocorrem os ataques por de trás dos panos.
+
+Desde já, agradeço enormemente a leitura. Espero que tenha contribuído de alguma forma em novos conhecimentos. Abraços. =]
