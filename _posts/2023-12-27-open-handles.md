@@ -520,8 +520,13 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 ## Referências
 
 <https://rastamouse.me/duplicating-handles-in-csharp/>
+
 <https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation>
+
 <https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-zwduplicateobject>
+
 <https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryobject>
+
 <https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamea>
+
 <https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump>
