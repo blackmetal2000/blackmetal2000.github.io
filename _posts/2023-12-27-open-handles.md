@@ -339,10 +339,10 @@ public static extern NTSTATUS NtQueryObject(
 );
 ```
 >`OBJECT_INFORMATION_CLASS`: um enum que representa a categoria de informação que será retornado do objeto.
-`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
+>`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
 {: .prompt-info }
 
-> O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado retornado deste será filtrado posteriormente pelo struct.
+> O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado deste será filtrado posteriormente pelo struct.
 {: .prompt-warning }
 
 Similarmente a API `NtQuerySystemInformation`, também não sabemos o tamanho do resultado que a função retornará.
@@ -504,7 +504,7 @@ if (result == true) { Console.WriteLine("[+] (MiniDumpWriteDump) Dump realizado 
 E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de usuários e suas respectivas hashes NT são de se esperar na leitura deste arquivo, que pode ser feita utilizando a ferramenta `pypykatz`.
 
 > Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
-{: .prompt-warning }
+{: .prompt-tip }
 
 ## Conclusão
 
@@ -517,4 +517,11 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 
 É de se ressaltar que, ao término deste artigo, buscamos alcançar uma mentalidade primordial na segurança ofensiva: entender como ocorrem os ataques por de trás dos panos. Desde já, agradeço enormemente a leitura. Espero que tenha contribuído de alguma forma em novos conhecimentos. Abraços. =]
 
-## Conclusão
+## Referências
+
+<https://rastamouse.me/duplicating-handles-in-csharp/>
+<https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation>
+<https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-zwduplicateobject>
+<https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntqueryobject>
+<https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-queryfullprocessimagenamea>
+<https://learn.microsoft.com/en-us/windows/win32/api/minidumpapiset/nf-minidumpapiset-minidumpwritedump>
