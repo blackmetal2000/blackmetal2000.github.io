@@ -113,7 +113,7 @@ Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e
 
 - `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.
 
-`ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
+- `ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
 
 >`NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
 >`SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
@@ -122,7 +122,9 @@ Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e
 O valor retornado pelo `SystemInformation` é um struct `SYSTEM_HANDLE_INFORMATION`, como visto no código. Nele, é retornado dois valores:
 `Count`: número de handles abertos.`Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
 
-Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`. Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
+Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`.
+
+Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
 
 ```csharp
 var systemHandleInformation = new Netdump.Tables.SYSTEM_HANDLE_INFORMATION();
@@ -188,6 +190,7 @@ Netdump.Invokes.CloseHandle(systemInformationPtr);
 ```
 
 Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são somente duas: PID e AccessRights.
+
 Como são muitos handles, com muitos PIDs diferentes, será criado um `if` para filtrar somente pelo PID que contém o handle pro LSASS (como foi visto pelo Process Hacker).
 
 ```csharp
