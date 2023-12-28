@@ -50,7 +50,9 @@ if (ningning == 0)
 >`NtCreateProcessEx³`: API utilizada para criar um fork do processo LSASS. 
 {: .prompt-info }
 
-Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado. Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa Process Hacker, nos deparamos com algo bastante interessante:
+Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do código. Nele, é especificado que será aberto com os privilégios de `PROCESS_CREATE_PROCESS`. Entretanto, como vimos, um erro de `ACCESS DENIED` é retornado.
+
+Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa Process Hacker, nos deparamos com algo bastante interessante:
 
 ![Desktop View](https://i.imgur.com/RUkXM62.png)
 
@@ -76,7 +78,7 @@ Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LS
 
 ## NtQuerySystemInformation⁵
 
->`NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos do sistema.
+>`NtQuerySystemInformation⁵`: API utilizada para enumerar todos os handles em abertos no sistema.
 {: .prompt-info }
 
 ```csharp
@@ -120,11 +122,12 @@ Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e
 {: .prompt-info }
 
 O valor retornado pelo `SystemInformation` é um struct `SYSTEM_HANDLE_INFORMATION`, como visto no código. Nele, é retornado dois valores:
-`Count`: número de handles abertos.`Handle`: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
+- Count: número de handles abertos.
+- Handle: um struct `SYSTEM_HANDLE_TABLE_ENTRY_INFO` que armazena informações precisas sobre o handle, como PID, privilégios de acesso, entre outros.
 
 Inicialmente, não sabemos o tamanho necessário para alocar devido à incerteza do tamanho da resposta que será atribuída ao `SystemInformation`. Caso o tamanho seja insuficiente, a API retorna o NTSTATUS de `STATUS_INFO_LENGTH_MISMATCH`.
 
-Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API. Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória será alocada para armazenar as informações.
+Se o resultado for `STATUS_INFO_LENGTH_MISMATCH`, então mais memória deverá ser alocada para armazenar as informações. Logo, uma boa alternativa seria utilizar um loop que checa o resultado da API.
 
 ```csharp
 var systemHandleInformation = new Netdump.Tables.SYSTEM_HANDLE_INFORMATION();
@@ -497,3 +500,5 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 - Evasão de softwares de defesas.
 
 É de se ressaltar que, ao término deste artigo, buscamos alcançar uma mentalidade primordial na segurança ofensiva: entender como ocorrem os ataques por de trás dos panos. Desde já, agradeço enormemente a leitura. Espero que tenha contribuído de alguma forma em novos conhecimentos. Abraços. =]
+
+## Conclusão
