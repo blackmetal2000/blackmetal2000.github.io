@@ -1,6 +1,6 @@
 ---
 title: "A reciclagem também está presente nos handles."
-date: 2023-12-27 00:00:00 +0800
+date: 2023-06-03 00:00:00 +0800
 categories: [Windows, LSASS]
 tags: [Red Team]
 ---
@@ -107,7 +107,13 @@ public static extern NTSTATUS NtQuerySystemInformation(
 ```
 
 Esta é uma API fundamental para todo o processo. Ela é do tipo `NTSTATUS⁶` e pede alguns valores importantes. São eles:
-`SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.`SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.`SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.`ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
+- `SystemInformationClass`: uma tabela de valores sobre informações do sistema operacional. Neste caso, é necessário somente o valor `SystemHandleInformation⁷`, representado pelo número 16 em hexadecimal.
+
+- `SystemInformation`: a saída da API. É um ponteiro que armazena as informações solicitadas. Neste caso, as informações dos handles em abertos.
+
+- `SystemInformationLength`: o tamanho do buffer, em bytes, apontado pelo `SystemInformation`.
+
+`ReturnLength`: um ponteiro representando o local onde a função vai escrever o tamanho da informação solicitada pela API. Se o tamanho do `ReturnLength` for menor ou igual ao `SystemInformationLength`, a informação será escrita dentro do `SystemInformation`. Caso contrário, retorna o tamanho do buffer necessário para receber o resultado.
 
 >`NTSTATUS⁶`: lista de valores que são representados como status code. Bastante utilizada em APIs.
 >`SystemHandleInformation⁷`: um struct que armazenas as informações de handles em abertos do sistema.
@@ -149,6 +155,7 @@ Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 ![Desktop View](https://i.imgur.com/DK8TlfC.png)
 
 Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo.
+
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos os handles através do `numberOfHandles`. É neste loop que iteraremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
@@ -486,6 +493,4 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 - Ataques ao sistema operacional;
 - Evasão de softwares de defesas.
 
-É de se ressaltar que, ao término deste artigo, buscamos alcançar uma mentalidade primordial na segurança ofensiva: entender como ocorrem os ataques por de trás dos panos.
-
-Desde já, agradeço enormemente a leitura. Espero que tenha contribuído de alguma forma em novos conhecimentos. Abraços. =]
+É de se ressaltar que, ao término deste artigo, buscamos alcançar uma mentalidade primordial na segurança ofensiva: entender como ocorrem os ataques por de trás dos panos. Desde já, agradeço enormemente a leitura. Espero que tenha contribuído de alguma forma em novos conhecimentos. Abraços. =]
