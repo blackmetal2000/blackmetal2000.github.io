@@ -5,8 +5,7 @@ categories: [Windows, LSASS]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/A0bkoaS.png)
-*Imagem inspirada no álbum "Crystal Castles" do grupo "Crystal Castles".*
+![Desktop View](https://i.imgur.com/pTOCMVT.png)
 
 Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ¹` ao LSASS se torna tudo o que um atacante quer.
 
