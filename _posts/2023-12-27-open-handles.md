@@ -314,7 +314,7 @@ Netdump.Invokes.CloseHandle(hObject);
 >`NtQueryObject¹¹`: API utilizada para filtrar informações de um objeto.
 {: .prompt-info }
 
-Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: `Process`, `Keys`, `Files`, `Threads`, entre outros. O tipo de handle que precisamos é da categoria "Process". Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
+Chegando aos passos finais, vamos filtrar o tipo de handle que está sendo duplicado. Existem diversas modalidades deles, como handles de: `Process`, `Keys`, `Files`, `Threads`, entre outros. O tipo de handle que precisamos é da categoria `Process`. Dito isso, uma API que filtra por esse tipo de informação é a `NtQueryObject`.
 
 ```csharp
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -344,7 +344,7 @@ public static extern NTSTATUS NtQueryObject(
 
 >`OBJECT_INFORMATION_CLASS`: um enum que representa a categoria de informação que será retornado do objeto.
 {: .prompt-info }
->`OBJECT_TYPE_INFORMATION`: um struct que representa o valor que será retornado do objeto.
+>`OBJECT_TYPE_INFORMATION`: um struct que armazena o nome do tipo do objeto (TypeName).
 {: .prompt-info }
 
 > O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado deste será filtrado posteriormente pelo struct.
@@ -397,7 +397,7 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase)) // checand
 }
 ```
 
-No código acima, será acessado o valor `TypeName` de cada handle que está representado no valor `hDuplicate`. Caso o tipo do handle seja de "Process", o PID do processo e o identificador do handle é exibido.
+No código acima, será acessado o valor `TypeName` de cada handle que está representado no valor `hDuplicate`. Caso o tipo do handle seja de `Process`, o PID do processo e o identificador do handle é exibido.
 
 ![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/dCGSO4d.png)
 
@@ -406,7 +406,7 @@ No código acima, será acessado o valor `TypeName` de cada handle que está rep
 >`QueryFullProcessImageName¹²`: API utilizada para descobrir o path do executável de um processo.
 {: .prompt-info }
 
-Partindo para a penúltima etapa, agora será necessário descobrir o caminho do executável que está sendo referenciado no `hDuplicate`. Para isso, a API `QueryFullProcessImageName` se faz presente para cumprir esta função. Esta API é útil para, futurarmente, filtrarmos pelo processo "lsass.exe", onde desde o início foi o nosso alvo.
+Partindo para a penúltima etapa, agora será necessário descobrir o caminho do executável que está sendo referenciado no `hDuplicate`. Para isso, a API `QueryFullProcessImageName` se faz presente para cumprir esta função. Esta API é útil para, futuramente, filtrarmos pelo processo "lsass.exe", onde desde o início foi o nosso alvo.
 
 ```csharp
 [DllImport("Kernel32.dll", CharSet = CharSet.Auto)]
