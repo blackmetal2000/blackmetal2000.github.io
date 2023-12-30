@@ -194,9 +194,10 @@ Netdump.Invokes.CloseHandle(handleEntryPtr);
 Netdump.Invokes.CloseHandle(systemInformationPtr);
 ```
 
-Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são três: PID, AccessRights e `handleStruct.HandleValue`.
+Agora que as informações que precisamos estão armazenadas no dicionário, precisamos criar um `foreach` para acessarmos elas de uma por uma. As informações que analisaremos são três: PID, AccessRights e handleStruct.HandleValue.
 
 - AccessRights: privilégios de acesso do handle. Buscamos por handles que contenham `PROCESS_VM_READ`.
+- handleStruct.HandleValue: valor proveniente do `SYSTEM_HANDLE_TABLE_ENTRY_INFO`, é o identificador do handle.
 
 Como são muitos handles, com muitos PIDs diferentes, será criado um `if` para filtrar somente pelo PID que contém o handle pro LSASS (como foi visto pelo Process Hacker).
 
