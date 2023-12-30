@@ -5,7 +5,8 @@ categories: [Windows, LSASS]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/pTOCMVT.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/pTOCMVT.png)
+*Imagem inspirada no álbum "Crystal Castles" do grupo "Crystal Castles".*
 
 Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado ofensivo. É neste processo que informações de logons de usuários são armazenadas (como as valiosas NT hashes). Quando o assunto é dump de credenciais, um handle com permissões de `PROCESS_VM_READ¹` ao LSASS se torna tudo o que um atacante quer.
 
@@ -14,7 +15,7 @@ Como sabemos, o processo do LSASS é um tesouro quando se observado pelo lado of
 
 Nos últimos tempos, estive me aprofundando em técnicas de dump de LSASS que normalmente um EDR/XDR não detectaria. Em um laboratório, instalei um famoso antivírus do mercado (no qual não citarei o nome) e que me rendeu bastante trabalho. Quando eu abria um novo handle pro LSASS e tentava interagí-lo, um erro era retornado: `STATUS_ACCESS_DENIED`.
 
-![Desktop View](https://i.imgur.com/wihqqna.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/wihqqna.png)
 
 No código, primeiro é aberto um novo handle pro LSASS com o privilégio `PROCESS_CREATE_PROCESS²`. Como exibido na captura de tela acima, o erro ocorria na execução da API `NtCreateProcessEx³`.
 
@@ -56,21 +57,21 @@ Note que foi solicitada a abertura de um novo handle ao LSASS na linha 4 do cód
 
 Pausando a execução do código e partindo para a análise do handle recém-aberto utilizando o programa Process Hacker, nos deparamos com algo bastante interessante:
 
-![Desktop View](https://i.imgur.com/RUkXM62.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/RUkXM62.png)
 
 Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS, antes dos privilégios serem atribuídos, o AV analisa as permissões que serão dadas e, dependendo delas, serão barradas e não atribuídas ao handle. No final, nenhuma permissão foi atribuída, ocasionando no erro.
 
-![Desktop View](https://i.imgur.com/oAHfhBb.png){: width="300" height="100" }
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/oAHfhBb.png){: width="300" height="100" }
 
 ## Handles também podem ser reciclados!
 
 Como foi visto, não é possível solicitar a abertura de um handle ao LSASS sem que o AV barre a atribuição dos privilégios necessários para o dump. Mas, e se algum programa legítimo já tiver aberto um handle? A pergunta é facilmente respondida com o Process Hacker. Nele, uma funcionalidade que busca por handles filtrados pelo nome.
 
-![Desktop View](https://i.imgur.com/gyyW0Vw.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/gyyW0Vw.png)
 
 Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "processo" (que é o que nos interessa). Averiguando as caracteristicas do handle destacado em vermelho, uma boa notícia vem à tona: suas permissões!
 
-![Desktop View](https://i.imgur.com/1RQOTf1.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/1RQOTf1.png)
 
 Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta primeira permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
 
@@ -159,7 +160,7 @@ var numberOfHandles = Marshal.ReadInt64(systemInformationPtr);
 Console.WriteLine($"[+] Número de handles: {numberOfHandles}");
 ```
 
-![Desktop View](https://i.imgur.com/DK8TlfC.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/DK8TlfC.png)
 
 Feito isso, o próximo objetivo é analisar os handles que estão abertos e armazenados no `systemInformationPtr`. Não é uma tarefa tão fácil, já que precisamos acessar handle por handle e realizar uma consulta na tabela `SYSTEM_HANDLE_TABLE_ENTRY_INFO` para descobrirmos seu PID, por exemplo.
 
@@ -241,7 +242,7 @@ foreach (var index in handles)
 }
 ```
 
-![Desktop View](https://i.imgur.com/J4yNvkg.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/J4yNvkg.png)
 
 ## NtDuplicateObject⁸
 
@@ -398,7 +399,7 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase)) // checand
 
 No código acima, será acessado o valor `TypeName` de cada handle que está representado no valor `hDuplicate`. Caso o tipo do handle seja de "Process", o PID do processo e o identificador do handle é exibido.
 
-![Desktop View](https://i.imgur.com/dCGSO4d.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/dCGSO4d.png)
 
 ## QueryFullProcessImageName¹²
 
@@ -434,7 +435,7 @@ if (typeHandle.Equals("Process", StringComparison.OrdinalIgnoreCase))
 
 Note, conforme exibido na figura abaixo, os caminhos dos executáveis dos diversos processos que estão passando pelo handle `hDuplicate`. Vale ressaltar que todos esses caminhos simbolizam um handle em aberto para cada um desses executáveis.
 
-![Desktop View](https://i.imgur.com/mXJ4rvQ.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/mXJ4rvQ.png)
 
 Agora, para filtrar o caminho pelo "lsass.exe", um simples `if`.
 
@@ -451,11 +452,11 @@ if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 }
 ```
 
-![Desktop View](https://i.imgur.com/Ykf8Jw0.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/Ykf8Jw0.png)
 
 E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e ver as permissões que o handle possui. Se tudo estiver certo, o handle duplicado do LSASS terá herdado as mesmas permissões que o handle original (`PROCESS_QUERY_INFORMATION` e `PROCESS_VM_READ`).
 
-![Desktop View](https://i.imgur.com/g8SRVNL.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/g8SRVNL.png)
 
 ## MiniDumpWriteDump¹³
 
@@ -503,7 +504,7 @@ if (result == true) { Console.WriteLine("[+] (MiniDumpWriteDump) Dump realizado 
 }
 ```
 
-![Desktop View](https://i.imgur.com/OuBgCMV.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/OuBgCMV.png)
 
 E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de usuários e suas respectivas hashes NT são de se esperar na leitura deste arquivo, que pode ser feita utilizando a ferramenta `pypykatz`.
 
@@ -524,6 +525,8 @@ Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LS
 ## Referências
 
 <https://rastamouse.me/duplicating-handles-in-csharp/>
+
+<https://github.com/fortra/nanodump>
 
 <https://learn.microsoft.com/en-us/windows/win32/api/winternl/nf-winternl-ntquerysysteminformation>
 
