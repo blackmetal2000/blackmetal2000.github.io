@@ -258,7 +258,6 @@ public enum DUPLICATE_OPTION_FLAGS : uint
 	CLOSE_SOURCE = 0x00000001,
 	SAME_ACCESS = 0x00000002, // herda os privilégios de acessos do handle pai ao handle clonado
 	SAME_ATTRIBUTES = 0x00000004 // herda os atributos do handle pai ao handle clonado
-
 }
 
 [DllImport("ntdll.dll")]
@@ -273,7 +272,9 @@ public static extern NTSTATUS NtDuplicateObject(
 );
 ```
 
-Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
+Para duplicar o handle, é necessário um privilégio essencial: `PROCESS_DUP_HANDLE⁹`. Feito isso, após a abertura de um novo handle ao processo alvo (o que foi destacado no Process Hacker), é realizada a chamada da API. 
+
+Ela terá como resultado um novo handle, referenciado como `hDuplicate`, que será o duplicado. Mas, não se enganem, este handle não é necessariamente o do LSASS. :P
 
 ```csharp
 uint acessOriginal = PROCESS_DUP_HANDLE; // setando privilégios de acesso
@@ -344,7 +345,7 @@ public static extern NTSTATUS NtQueryObject(
 
 >`OBJECT_INFORMATION_CLASS`: um enum que representa a categoria de informação que será retornado do objeto.
 {: .prompt-info }
->`OBJECT_TYPE_INFORMATION`: um struct que armazena o nome do tipo do objeto (TypeName).
+>`OBJECT_TYPE_INFORMATION`: um struct que retorna o tipo do objeto (TypeName).
 {: .prompt-info }
 
 > O struct  `OBJECT_TYPE_INFORMATION` só será utilizado depois da chamada ao `OBJECT_INFORMATION_CLASS`. O resultado deste será filtrado posteriormente pelo struct.
