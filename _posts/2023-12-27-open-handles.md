@@ -466,7 +466,6 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 {
 	Process[] localByName = Process.GetProcessesByName("lsass");
-
 	int lsass_pid = localByName[0].Id;
 
 	if (Netdump.Invokes.GetProcessId(hDuplicate) == lsass_pid)
