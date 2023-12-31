@@ -72,7 +72,9 @@ Podemos notar que, de todos os handles abertos ao LSASS, dois são do tipo "proc
 
 ![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/1RQOTf1.png)
 
-Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta primeira permissão que nos permite ler a memória do processo, técnica popularmente conhecida como "dump". Agora, vamos dar uma mergulhada no mundo das Windows API. =]
+Maravilha! Como mostrado acima, duas permissões estão atribuídas ao handle LSASS: `PROCESS_VM_READ` e `PROCESS_QUERY_INFORMATION⁴`. É exatamente esta primeira permissão que nos permite ler a memória do processo.
+
+Agora que já temos em mente que existe um handle em aberto ao LSASS com as permissões que queremos, vamos mergulhar no mundo das Windows APIs!
 
 >`PROCESS_QUERY_INFORMATION⁴`: permissão necessária para descobrir certas informações sobre um processo, como token, código de saída e classe de prioridade.
 {: .prompt-info }
