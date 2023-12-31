@@ -249,7 +249,7 @@ foreach (var index in handles)
 >`NtDuplicateObject⁸`: API utilizada para duplicar um handle alvo.
 {: .prompt-info }
 
-Com os identificadores dos handles (PID e AccessRights) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
+Com os identificadores dos handles (PID, AccessRights e HandleValue) em mãos, o próximo passo é duplicá-los para, posteriormente, interagirmos com eles. O processo de duplicação é bem simples, ainda mais quando se tem uma API própria para isso.
 
 ```csharp
 [Flags]
