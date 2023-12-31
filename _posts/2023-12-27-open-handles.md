@@ -474,7 +474,9 @@ if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 	}
 }
 ```
+{: .prompt-tip }
 
+> Uma alternativa ao uso da API `QueryFullProcessImageName` seria de checar se o PID do `hDuplicate` é o mesmo que o do LSASS, ao invés de checar pelo path do executável.
 ```csharp
 if (pathExe.Equals("Process", StringComparison.OrdinalIgnoreCase))
 {
