@@ -62,7 +62,7 @@ Descobrimos o motivo do erro! Ao solicitar a abertura de um novo handle ao LSASS
 
 ![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/oAHfhBb.png){: width="300" height="100" }
 
-## Handles também podem ser reciclados!
+## Enumerando handles em aberto com Process Hacker
 
 Como foi visto, não é possível solicitar a abertura de um handle ao LSASS sem que o AV barre a atribuição dos privilégios necessários para o dump. Mas, e se algum programa legítimo já tiver aberto um handle? A pergunta é facilmente respondida com o Process Hacker. Nele, uma funcionalidade que busca por handles filtrados pelo nome.
 
