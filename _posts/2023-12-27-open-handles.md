@@ -531,6 +531,8 @@ E, sucesso! O arquivo ".\dump.dmp" contém o dump do processo do LSASS. Nomes de
 
 ## Conclusão
 
+![Desktop View](https://blackmetal2000.github.io/assets/img/open-handles/image.png)
+
 Durante nossa jornada, identificamos uma barreira na abertura de um handle ao LSASS feito pelo antivírus e, a partir desta barreira, buscamos compreender métodos alternativos que nos levasse ao nosso objetivo. Em nossa trajetória, percorremos desde o entendimento básico do ataque até ao íntimo do sistema operacional Windows. Variedades de conhecimentos foram abordados nesta leitura, tais como:
 
 - Programação;
