@@ -168,6 +168,9 @@ Feito isso, o próximo objetivo é analisar os handles que estão abertos e arma
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos eles através do `numberOfHandles`. É neste loop que obteremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
+> O PID, neste contexto, seria do processo no qual o handle está se referindo.
+{: .prompt-warning }
+
 ```csharp
 public static void IterateHandles(long numberOfHandles, IntPtr systemInformationPtr)
 {
@@ -228,7 +231,7 @@ foreach (var index in handles)
 		Netdump.Tables.PROCESS_ACCESS grantedAccess = (Netdump.Tables.PROCESS_ACCESS)handleStruct.GrantedAccess;
 		if (grantedAccess.HasFlag(Netdump.Tables.PROCESS_ACCESS.PROCESS_VM_READ))
 		{
-			if (index.Key == 6020)
+			if (index.Key == 6020) // index.Key = PID
 			{
 				foreach (Netdump.Tables.PROCESS_ACCESS accessRight in Enum.GetValues(typeof(Netdump.Tables.PROCESS_ACCESS)))
 				{
