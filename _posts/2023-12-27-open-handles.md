@@ -168,7 +168,7 @@ Feito isso, o próximo objetivo é analisar os handles que estão abertos e arma
 Para isso, é uma boa alternativa a criação de um dicionário que armazenará informações sobre os handles.
 Posteriormente, um loop que passará por todos eles através do `numberOfHandles`. É neste loop que obteremos sobre seus respectivos PIDs e, depois, sobre seus níveis de acesso.
 
-> O PID, neste contexto, seria do processo no qual o handle está se referindo.
+> O PID, neste contexto, seria do processo no qual o handle está em aberto.
 {: .prompt-warning }
 
 ```csharp
