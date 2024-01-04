@@ -9,4 +9,4 @@ Durante o período de pós-exploração, o invasor na maioria das vezes busca o 
 
 Hoje, vamos nos aprofundar numa técnica interessante de elevação de privilégio e que já me rendeu acesso de domain admin: **Token Impersonation**.
 
-![Desktop View](https://i.imgur.com/xzmWmIJ.png){: width="972" height="589" }
+![Desktop View](https://i.imgur.com/xzmWmIJ.png){: width="200" height="100" }
