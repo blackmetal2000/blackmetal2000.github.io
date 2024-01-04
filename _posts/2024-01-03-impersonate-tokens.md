@@ -7,6 +7,6 @@ tags: [Red Team]
 
 Durante o período de pós-exploração, o invasor na maioria das vezes busca o maior nível de privilégio na rede. No contexto de Active Directory, esse nível de privilégio é, por muitas vezes, conferidas ao Administrador de Domínio, onde o atacante almeja este acesso. E os inúmeros vetores de ataques no Windows contribuem para isso.
 
-Hoje, vamos nos aprofundar numa técnica interessante de elevação de privilégio e que já me rendeu acesso de domain admin: **Token Impersonation**.
+Hoje, vamos conferir uma abordagem mais interna num vetor de ataque bastante interessante e que já me rendeu uma elevação de privilégio ao domain admin: **Token Impersonation**.
 
 ![Desktop View](https://i.imgur.com/xzmWmIJ.png){: width="350" height="250" }
