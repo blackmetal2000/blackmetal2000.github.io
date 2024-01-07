@@ -13,9 +13,13 @@ Hoje, vamos conferir uma abordagem mais interna num vetor de ataque bastante int
 
 ## Um breve contexto
 
-Todo processo no Windows possui um Token de Acesso¹. A importância deste token para o invasor são os respectivos privilégios que estão embutidos nele. Caso você tenha um token de `NT AUTHORITY\SYSTEM`, você consegue criar um processo com o nível de privilégio deste usuário. O mesmo serve para usuários do domínio.
+Todo processo no Windows possui um Token de Acesso¹. A importância deste token para o invasor são os respectivos privilégios que estão embutidos nele.
 
->Token de Acesso¹: Um token de acesso contém as informações de segurança de uma sessão de logon. O sistema cria um token de acesso quando um usuário faz logon e cada processo executado em nome do usuário tem uma cópia do token. O token identifica o usuário, os grupos do usuário e os privilégios do usuário. O sistema usa o token para controlar o acesso a objetos protegíveis e controlar a capacidade do usuário de executar várias operações relacionadas ao sistema no computador local.
+Caso você tenha um token de `NT AUTHORITY\SYSTEM`, você consegue criar um processo com o nível de privilégio deste usuário. O mesmo serve para usuários do domínio.
+
+>Token de Acesso¹: Um token de acesso contém as informações de segurança de uma sessão de logon. O sistema cria um token de acesso quando um usuário faz logon e cada processo executado em nome do usuário tem uma cópia do token.
+
+O token identifica o usuário, os grupos do usuário e os privilégios do usuário. O sistema usa o token para controlar o acesso a objetos protegíveis e controlar a capacidade do usuário de executar várias operações relacionadas ao sistema no computador local.
 {: .prompt-info }
 
 O impacto deste ataque reflete diretamente na elevação de privilégio do invasor. Por não se tratar somente de ataques a usuários locais, atacantes também podem comprometer usuários de alto valor no domínio, como administradores de domínios, operadores de contas, entre outros.
