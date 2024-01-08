@@ -46,7 +46,8 @@ public static extern IntPtr OpenProcess(
 
 Como visto no primeiro argumento da API, `dwDesiredAccess` simboliza o nível de permissão que o handle aberto terá. A permissão mínima para o handle inicial necessária para o ataque é `PROCESS_QUERY_LIMITED_INFORMATION²`, conforme dita na documentação da Microsoft.
 
-![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem1.png){: width="100" height="500" }
+![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem1.png)
+
 ```csharp
 IntPtr hProcess = Impersonate.PInvokes.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, 4404); // 4404 = pid
 if (hProcess == IntPtr.Zero)
