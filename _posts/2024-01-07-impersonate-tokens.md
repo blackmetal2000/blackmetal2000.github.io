@@ -17,8 +17,6 @@ Hoje, vamos conferir uma abordagem mais interna num vetor de ataque bastante int
 
 Todo processo no Windows possui um Token de Acesso¹. A importância deste token para o invasor são os respectivos privilégios que estão embutidos nele.
 
-Caso você tenha um token de `NT AUTHORITY\SYSTEM`, você consegue criar um processo com o nível de privilégio deste usuário. O mesmo serve para usuários do domínio.
-
 >Token de Acesso¹: Um token de acesso contém as informações de segurança de uma sessão de logon. O sistema cria um token de acesso quando um usuário faz logon e cada processo executado em nome do usuário tem uma cópia do token.\\
 O token identifica o usuário, os grupos do usuário e os privilégios do usuário. O sistema usa o token para controlar o acesso a objetos protegíveis e controlar a capacidade do usuário de executar várias operações relacionadas ao sistema no computador local.
 {: .prompt-info }
@@ -48,7 +46,7 @@ public static extern IntPtr OpenProcess(
 
 Como visto no primeiro argumento da API, `dwDesiredAccess` simboliza o nível de permissão que o handle aberto terá. A permissão mínima para o handle inicial necessária para o ataque é `PROCESS_QUERY_LIMITED_INFORMATION²`, conforme dita na documentação da Microsoft.
 
-![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem1.png)
+![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem1.png){: width="100" height="500" }
 ```csharp
 IntPtr hProcess = Impersonate.PInvokes.OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, false, 4404); // 4404 = pid
 if (hProcess == IntPtr.Zero)
