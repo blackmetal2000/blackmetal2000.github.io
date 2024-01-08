@@ -149,7 +149,7 @@ Algumas declarações no código são de grande valia para o funcionamento da AP
 - `SECURITY_IMPERSONATION_LEVEL`: enum que contém os valores que representam os [níveis de impersonificação](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-security_impersonation_level).
 - `TOKEN_TYPE`: enum que contém valores que diferenciam o token de um [primário e impersonation](https://learn.microsoft.com/en-us/windows/win32/api/winnt/ne-winnt-token_type).
 
-Nesta API, é importante nos atentarmos no `dwDesiredAccess`. Ele representa o [nível de acesso](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects) do token duplicado. É possível requisitar o mesmo nível de acesso do token original passando o valor "0".
+Nesta API, é importante nos atentarmos no `dwDesiredAccess`. Ele representa o [nível de acesso](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects) do token duplicado. Caso queira, é possível requisitar o mesmo nível de acesso do token original passando o valor "0".
 
 ```csharp
 bool result = Impersonate.PInvokes.DuplicateTokenEx(
