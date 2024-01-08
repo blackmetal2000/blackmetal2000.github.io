@@ -80,8 +80,6 @@ public static extern bool OpenProcessToken(
 
 Como visto, é solicitado um nível de acesso representado pelo `DesiredAccess`, similarmente ao que ocorre na abertura do handle com o `OpenProcess`. Neste caso, o único privilégio necessário para atribuirmos ao handle do token seria o de `TOKEN_DUPLICATE³`. Estes privilégios estão representados [nesta documentação](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects).
 
-![Desktop View](https://blackmetal2000.github.io/assets/img/tokens/imagem2.png)
-
 ```csharp
 bool result = Impersonate.PInvokes.OpenProcessToken(hProcess, TOKEN_DUPLICATE, out IntPtr hToken);
 
