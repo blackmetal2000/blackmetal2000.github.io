@@ -7,7 +7,9 @@ tags: [Red Team]
 
 ![Desktop View](https://i.imgur.com/O4rN4Sz.png)
 
-O Windows não economiza quando o assunto é vetores de ataque. As inúmeras maneiras de se executar um comando, de elevar privilégios, de persistências, se tornaram uma marca registrada do sistema. Hoje, vamos nos aprofundar numa técnica de ataque que, particularmente, acho bem interessante: **Token Impersonation**.
+O Windows não economiza quando o assunto é vetores de ataque. As inúmeras maneiras de se executar um comando, de elevar privilégios, de persistências, se tornaram uma marca registrada do sistema.
+
+Hoje, vamos nos aprofundar numa técnica de ataque que, particularmente, acho bem interessante: **Token Impersonation**.
 
 Basicamente, o ataque consiste nas seguintes etapas:
 
@@ -19,7 +21,7 @@ Felizmente, existem APIs do Windows que desempenham estas funções necessárias
 
 ## OpenProcess
 
-Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token. Para isso, a API OpenProcess se faz presente.
+Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token.
 
 ```csharp
 [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
@@ -44,7 +46,7 @@ Note que foi aberto um handle ao processo. A variável que armazenará este hand
 
 ## OpenProcessToken
 
-Agora o objetivo é abrir um handle para o token do processo. Não tão diferente da API passada, a `OpenProcessToken` desempenha a função necessária para esta etapa.
+Agora o objetivo é abrir um handle para o token do processo. Para isso, a `OpenProcessToken` desempenha a função necessária para esta etapa.
 
 ```csharp
 [DllImport("advapi32", SetLastError = true)]
@@ -58,16 +60,20 @@ static void Main(string[] args)
 		? $"OpenProcessToken ERROR: {Marshal.GetLastWin32Error()}"
 		: $"OpenProcessToken SUCCESS: {hToken}" // hToken = handle do token
 	);
+
+	if (hProcess == IntPtr.Zero) Environment.Exit(0);
+	CloseHandle(hProcess);
+	CloseHandle(tokenPtr);
 }
 ```
 
 Onde:
 
 - `DesiredAccess`: especifica uma máscara de acesso que especifica os tipos solicitados de acesso ao token.
+- `TokenHandle`: o handle representado pelo token do processo especificado.
 
-Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token.
 
-Neste caso, como este token (`hToken`) será duplicado posteriormente, a única permissão necessária é a `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
+Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token. Neste caso, como este token (`hToken`) será duplicado posteriormente, a única permissão necessária é a `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
 
 ## DuplicateTokenEx
 
@@ -123,5 +129,7 @@ Como vimos, diversos valores são repassados. Vamos nos atentar aos principais:
 - `TOKEN_TYPE`: o tipo do token, podendo ser um primário (um criado do zero, diretamente pelo kernel), ou um impersonificado.
 
 O valor `0x02000000` é repassado no `dwDesiredAccess`. Este valor simboliza o MAXIMUM_ALLOWED, que significa o máximo permitido.
+
 O valor `SecurityImpersonation` é repassado no `SECURITY_IMPERSONATION_LEVEL`. Este valor simboliza que o servidor pode impersonificar o contexto de segurança do cliente.
+
 O valor `TokenImpersonation` é repassado no `TOKEN_TYPE`. Este valor simboliza que o token será do tipo impersonificado.
