@@ -229,6 +229,8 @@ Onde, na chamada da API:
 - O caminho do binário CMD.EXE é repassado no `lpApplicationName`, sinalizando a criação de um novo processo cmd.
 - O valor "0" é repassado no `dwCreationFlags`, onde o novo processo obterá os sinalizadores padrões do sistema.
 
-Com isso, se tudo ocorrer bem, um novo processo CMD é spawnado através do token que impersonificamos. Hora da POC!
+## IMPERSONATE 4 THE WIN!
 
-![Desktop View](https://i.imgur.com/xWazVPa.png)
+Depois de todos esses passos, se tudo ocorrer bem, um novo processo CMD.EXE será criado a partir do token de acesso que especificamos no `hNewToken`.
+
+![Desktop View](https://i.imgur.com/YV0wY0t.png)
