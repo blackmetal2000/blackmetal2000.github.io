@@ -17,8 +17,6 @@ Basicamente, o ataque consiste nas seguintes etapas:
 - Duplicar este handle (token);
 - Impersonificar o token referenciado pelo handle.
 
-Felizmente, existem APIs do Windows que desempenham estas funções necessárias para a exploração. É e sobre elas que vamos discutir! =]
-
 ## OpenProcess
 
 Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token.
@@ -70,10 +68,12 @@ static void Main(string[] args)
 Onde:
 
 - `DesiredAccess`: especifica uma máscara de acesso que especifica os tipos solicitados de acesso ao token.
-- `TokenHandle`: o handle representado pelo token do processo especificado.
+- `TokenHandle`: o handle do token de acesso do processo.
 
 
-Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token. Neste caso, como este token (`hToken`) será duplicado posteriormente, a única permissão necessária é a `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
+Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token.
+
+Neste caso, como este token (`hToken`) será duplicado posteriormente, a única permissão necessária é a `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
 
 ## DuplicateTokenEx
 
@@ -128,8 +128,8 @@ Como vimos, diversos valores são repassados. Vamos nos atentar aos principais:
 - `SECURITY_IMPERSONATION_LEVEL`: o nível de segurança de impersonificação, representando o grau em que um processo servidor pode agir em nome de um processo cliente.
 - `TOKEN_TYPE`: o tipo do token, podendo ser um primário (um criado do zero, diretamente pelo kernel), ou um impersonificado.
 
-O valor `0x02000000` é repassado no `dwDesiredAccess`. Este valor simboliza o MAXIMUM_ALLOWED, que significa o máximo permitido.
+- O valor `0x02000000` é repassado no `dwDesiredAccess`. Este valor simboliza o MAXIMUM_ALLOWED, que significa o máximo permitido.
 
-O valor `SecurityImpersonation` é repassado no `SECURITY_IMPERSONATION_LEVEL`. Este valor simboliza que o servidor pode impersonificar o contexto de segurança do cliente.
+- O valor `SecurityImpersonation` é repassado no `SECURITY_IMPERSONATION_LEVEL`. Este valor simboliza que o servidor pode impersonificar o contexto de segurança do cliente.
 
-O valor `TokenImpersonation` é repassado no `TOKEN_TYPE`. Este valor simboliza que o token será do tipo impersonificado.
+- O valor `TokenImpersonation` é repassado no `TOKEN_TYPE`. Este valor simboliza que o token será do tipo impersonificado.
