@@ -73,7 +73,7 @@ Onde:
 
 Ainda falando sobre a [máscara de acesso do token](https://learn.microsoft.com/pt-br/windows/win32/secauthz/access-rights-for-access-token-objects), ela trabalha de forma bastante similar com o `processAccess` do `OpenProcess`. Esta flag é necessária para especificarmos qual o nível de acesso que teremos sobre o token.
 
-Neste caso, como este token (`hToken`) será duplicado posteriormente, a única permissão necessária é a `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
+Neste caso, como este token (hToken) será duplicado posteriormente, a única permissão necessária, neste caso, é a de `TOKEN_DUPLICATE`, representada pelo valor `0x0002`.
 
 ## DuplicateTokenEx
 
@@ -127,6 +127,8 @@ Como vimos, diversos valores são repassados. Vamos nos atentar aos principais:
 - `dwDesiredAccess`: nível de acesso do token duplicado.
 - `SECURITY_IMPERSONATION_LEVEL`: o nível de segurança de impersonificação, representando o grau em que um processo servidor pode agir em nome de um processo cliente.
 - `TOKEN_TYPE`: o tipo do token, podendo ser um primário (um criado do zero, diretamente pelo kernel), ou um impersonificado.
+
+Onde, na chamada da API:
 
 - O valor `0x02000000` é repassado no `dwDesiredAccess`. Este valor simboliza o MAXIMUM_ALLOWED, que significa o máximo permitido.
 
