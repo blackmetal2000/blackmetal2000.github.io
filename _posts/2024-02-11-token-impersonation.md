@@ -217,9 +217,9 @@ static void Main(string[] args)
 
 Alguns dos valores importantes:
 
-- `dwLogonFlags`: a opção de logon.
-- `lpApplicationName`: o binário que será executado na criação de um novo processo.
-- `dwCreationFlags`: os sinalizadores que controlam como o processo é criado.
+- `dwLogonFlags`: a opção de logon. Existem duas opções: LOGON_WITH_PROFILE (0x00000001) e LOGON_NETCREDENTIALS_ONLY (0x00000002).
+- `lpApplicationName`: o que será executado na criação do novo processo. É possível especificar um binário para a execução.
+- `dwCreationFlags`: os sinalizadores que controlam como o processo é criado. Os sinalizadores CREATE_DEFAULT_ERROR_MODE, CREATE_NEW_CONSOLE e CREATE_NEW_PROCESS_GROUP estão habilitados por padrão.
 - `lpStartupInfo`: um ponteiro para a estrutura STARTUPINFO (que armazena informações como estação de janela, aparência do processo)
 - `lpProcessInformation`: um ponteiro para uma estrutura PROCESS_INFORMATION que recebe informações de identificação para o novo processo, incluindo um identificador para o processo.
 
