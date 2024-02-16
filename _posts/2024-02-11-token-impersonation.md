@@ -5,7 +5,7 @@ categories: [Windows, Token, Impersonation]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/PGn18Vb.png)
+![Desktop View](https://i.imgur.com/PGn18Vb.png){: width="300" height="100" }
 
 O Windows não economiza quando o assunto é vetores de ataque. As inúmeras maneiras de se executar um comando, de elevar privilégios, de persistências, se tornaram uma marca registrada do sistema.
 
