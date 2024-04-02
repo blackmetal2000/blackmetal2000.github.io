@@ -235,7 +235,7 @@ Depois de todos esses passos, se tudo ocorrer bem, um novo processo CMD.EXE ser�
 
 ![Desktop View](https://i.imgur.com/YV0wY0t.png)
 
-E, sucesso! Uma nova janela CMD foi criada com o usuário que é especificado no token. Veja que, inicialmente, tínhamos um CMD com o usuário "guilherme". Notamos que havia um processo "notepad.exe" sendo executado pelo usuário "usuario.teste". Logo, este processo tem o token de segurança do "usuario.teste".
+E, sucesso! Uma nova janela CMD foi criada com o usuário que é especificado no token. Veja que, inicialmente, tínhamos um CMD com o usuário `guilherme`. Notamos que havia um processo `notepad.exe` sendo executado pelo usuário `usuario.teste`. Logo, este processo tem o token de segurança do `usuario.teste`.
 
 Dito isso, rodamos o exploit e conseguimos impersonificar o token de acesso ao abrir um novo prompt CMD. Ao rodarmos o comando "whoami", o resultado que esperávamos é exibido.
 
