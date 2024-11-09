@@ -13,9 +13,15 @@ O interessante dessa técnica é que ela vai além do funcionamento básico de u
 
 ## Introdução
 
-De acordo com o MITRE ATT&CK, a técnica T1055.012 consiste em "Adversários podem injetar código malicioso em processos suspensos e esvaziados para evadir defesas baseadas em processos." Simplificadamente, o ataque ocorre com o seguinte workflow: 
+De acordo com o MITRE ATT&CK, a técnica T1055.012 consiste em "adversários podem injetar código malicioso em processos suspensos e esvaziados para evadir defesas baseadas em processos". Simplificadamente, o ataque ocorre com o seguinte workflow: 
 
 ![Desktop View](https://i.imgur.com/NKCa1rO.png)
+
+Onde:
+
+- `Hollowing de Processo`: bla bla bla
+- `Injeção de Shellcode`: bla bla bla
+- `Controle de Execução`: bla bla bla
 
 ```csharp
 [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
