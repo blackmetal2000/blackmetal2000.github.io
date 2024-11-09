@@ -15,11 +15,13 @@ Neste artigo, buscaremos responder as seguintes perguntas:
 - Qual o seu impacto?
 - O que está ocorrendo por de trás dos panos?
 
-O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental de um executável PE para abusarmos de atributos importantes para a execução do nosso shellcode.
+O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental de um executável PE para abusarmos de atributos importantes para a execução do nosso código.
 
 ## Introdução
 
 Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token.
+
+![Desktop View](https://i.imgur.com/tKAlwaJ.png)
 
 ```csharp
 [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
