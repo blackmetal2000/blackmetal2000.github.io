@@ -1,11 +1,11 @@
 ---
-title: "Process Hollowing: uma análise interna"
+title: "Process Hollowing: uma análise interna."
 date: 2024-11-09 00:00:00 +0800
 categories: [Windows, Process Injection, Shellcode]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/a9AVUhl.jpeg){: width="300" height="300" }
+![Desktop View](https://i.imgur.com/SqTJ0g4.jpeg){: width="300" height="300" }
 
 O Windows não economiza quando o assunto é vetores de ataque. As inúmeras maneiras de se executar um comando, de elevar privilégios, de persistências, se tornaram uma marca registrada do sistema.
 
