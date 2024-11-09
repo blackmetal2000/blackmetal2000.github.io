@@ -5,12 +5,9 @@ categories: [Windows, Process Injection, Shellcode]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/SqTJ0g4.jpeg){: width="300" height="300" }
 ![Desktop View](https://i.imgur.com/XzUPqOm.jpeg){: width="300" height="300" }
 
-O Windows não economiza quando o assunto é vetores de ataque. As inúmeras maneiras de se executar um comando, de elevar privilégios, de persistências, se tornaram uma marca registrada do sistema.
-
-Hoje, vamos nos aprofundar numa técnica de ataque que, particularmente, acho bem interessante: **Token Impersonation**.
+O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é o **Process Hollowing**!
 
 Basicamente, o ataque consiste nas seguintes etapas:
 
