@@ -80,7 +80,6 @@ static void Main(string[] args)
 {
 	STARTUPINFO si = new STARTUPINFO();
 	PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
-	PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
 
 	bool createProcessBool = CreateProcess(
 		null,
@@ -104,15 +103,14 @@ static void Main(string[] args)
 
 	else
 	{
-		Console.WriteLine(@$". CreateProcess SUCCESS!");
-		Console.WriteLine(@$".. Process HANDLE: {pi.hProcess}");
+		Console.WriteLine(". CreateProcess SUCCESS!");
+		Console.WriteLine($".. Process HANDLE: {pi.hProcess}");
 		Console.WriteLine($"... Process THREAD: {pi.hThread} \n");
 	}
-
 }
 ```
 
->`PROCESS_QUERY_LIMITED_INFORMATION (0x1000)`: o nível de acesso que o handle terá. Esta é a permissão mínima necessária para manipular tokens de processos.
+>`CREATE_SUSPENDED (0x00000004)`: o valor que define o novo processo como suspenso. Para mais informações, veja esta [documentação](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags).
 {: .prompt-info }
 
 Note que foi aberto um handle ao processo. A variável que armazenará este handle é a `hProcess`, que utilizaremos posteriormente nas próximas APIs.
