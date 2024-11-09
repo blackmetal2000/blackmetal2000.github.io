@@ -9,19 +9,13 @@ tags: [Red Team]
 
 O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
-Neste artigo, buscaremos responder as seguintes perguntas:
-
-- O que é Process Injection?
-- Qual o seu impacto?
-- O que está ocorrendo por de trás dos panos?
-
 O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental de um executável PE para abusarmos de atributos importantes para a execução do nosso código.
 
 ## Introdução
 
-Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token.
+De acordo com o MITRE ATT&CK, a técnica T1055.012 consiste em "Adversários podem injetar código malicioso em processos suspensos e esvaziados para evadir defesas baseadas em processos." Simplificadamente, o ataque ocorre com o seguinte workflow: 
 
-![Desktop View](https://i.imgur.com/tKAlwaJ.png)
+![Desktop View](https://i.imgur.com/NKCa1rO.png)
 
 ```csharp
 [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
