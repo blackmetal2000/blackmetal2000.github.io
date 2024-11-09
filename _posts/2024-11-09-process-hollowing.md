@@ -5,17 +5,19 @@ categories: [Windows, Process Injection, Shellcode]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/XzUPqOm.jpeg){: width="300" height="300" }
+![Desktop View](https://i.imgur.com/XzUPqOm.jpeg){: width="400" height="400" }
 
-O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é o **Process Hollowing**!
+O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
-Basicamente, o ataque consiste nas seguintes etapas:
+Neste artigo, buscaremos responder as seguintes perguntas:
 
-- Abrir um handle ao token do processo;
-- Duplicar este handle (token);
-- Impersonificar o token referenciado pelo handle.
+- O que é Process Injection?
+- Qual o seu impacto?
+- O que está ocorrendo por de trás dos panos?
 
-## OpenProcess
+O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental de um executável PE para abusarmos de atributos importantes para a execução do nosso shellcode.
+
+## Introdução
 
 Primeiramente, é necessária a abertura de um handle ao processo alvo que queremos manipular o token.
 
