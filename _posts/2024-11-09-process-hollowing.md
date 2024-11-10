@@ -113,8 +113,60 @@ static void Main()
 >`CREATE_SUSPENDED (0x00000004)`: o valor que define o novo processo como suspenso. Para mais informações, veja esta [documentação](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags).
 {: .prompt-info }
 
-Executando o código acima, um novo processo "notepad.exe" será criado no modo suspenso. Podemos validar isso abrindo o nosso gerenciador de tarefas.
+Executando o código acima, um novo processo "notepad.exe" será criado no modo suspenso. Podemos validá-lo abrindo o nosso gerenciador de tarefas.
 
-![Desktop View](https://i.imgur.com/LU62o94.png)
+<img src= "https://i.imgur.com/LU62o94.png" alt="your-image-description" style="border: 2px solid black;">
 
-<img src= "https://i.imgur.com/LU62o94.png" alt="your-image-description" style="border: 2px solid grey;">
+## NtQueryInformationProcess
+
+Nosso próximo passo é obter o valor do PEB do processo recém-criado, "notepad.exe". Para isso, a API "NtQueryInformationProcess" desempenha esta função.
+
+```csharp
+private struct PROCESS_BASIC_INFORMATION
+{
+	public NTSTATUS ExitStatus;
+	public IntPtr PebBaseAddress;
+	public UIntPtr AffinityMask;
+	public int BasePriority;
+	public UIntPtr UniqueProcessId;
+	public UIntPtr InheritedFromUniqueProcessId;
+}
+
+[DllImport("NTDLL.DLL", SetLastError=true)]
+static extern NTSTATUS NtQueryInformationProcess(
+	IntPtr hProcess,
+	int pic,
+	out PROCESS_BASIC_INFORMATION pbi,
+	IntPtr cb,
+	out int pSize
+);
+
+static void Main()
+{
+	PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
+
+	NTSTATUS GetPebAddress = NtQueryInformationProcess(
+		pi.hProcess,
+		0,
+		out pbi,
+		(IntPtr.Size * 6),
+		out int pSize
+	);
+
+	if (GetPebAddress != NTSTATUS.Success)
+	{
+		Console.WriteLine("NtQueryInformationProcess ERROR!");
+		Console.WriteLine($"ERROR CODE: {GetPebAddress}");
+		Environment.Exit(0);
+	}
+
+	else
+	{
+		Console.WriteLine(@$". NtQueryInformationProcess SUCCESS!");
+		Console.WriteLine($".. Process PEB ADDRESS: 000000{pbi.PebBaseAddress.ToString("X")}");
+	}
+}
+```
+
+>O PEB (Process Environment Block) se trata de uma estrutura de dados que todo processo possui no Windows. Nesta estrutura, informações importantes sobre o processo em execução são armazenadas, como seu PID, localização de DLLs carregadas, caminho do executável, entre outros.
+{: .prompt-info }
