@@ -76,7 +76,7 @@ private static extern bool CreateProcess(
 	out PROCESS_INFORMATION lpProcessInformation
 );
 
-static void Main(string[] args)
+static void Main()
 {
 	STARTUPINFO si = new STARTUPINFO();
 	PROCESS_INFORMATION pi = new PROCESS_INFORMATION();
@@ -87,7 +87,7 @@ static void Main(string[] args)
 		IntPtr.Zero,
 		IntPtr.Zero,
 		false,
-		0x00000004, // CREATE_SUSPENDED
+		0x00000004,
 		IntPtr.Zero,
 		null,
 		ref si,
@@ -113,4 +113,6 @@ static void Main(string[] args)
 >`CREATE_SUSPENDED (0x00000004)`: o valor que define o novo processo como suspenso. Para mais informações, veja esta [documentação](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags).
 {: .prompt-info }
 
-Note que foi aberto um handle ao processo. A variável que armazenará este handle é a `hProcess`, que utilizaremos posteriormente nas próximas APIs.
+Executando o código acima, um novo processo "notepad.exe" será criado no modo suspenso. Podemos validar isso abrindo o nosso gerenciador de tarefas.
+
+![Desktop View](https://i.imgur.com/LU62o94.png)
