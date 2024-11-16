@@ -115,7 +115,7 @@ static void Main()
 
 Executando o código acima, um novo processo "notepad.exe" será criado no modo suspenso. Podemos validá-lo abrindo o nosso gerenciador de tarefas.
 
-<img src= "https://i.imgur.com/LU62o94.png" alt="your-image-description" style="border: 2px solid black;">
+<img src= "https://i.imgur.com/LU62o94.png" alt="Processo notepad.exe suspenso" style="border: 2px solid black;">
 
 ## NtQueryInformationProcess
 
@@ -144,7 +144,6 @@ static extern NTSTATUS NtQueryInformationProcess(
 static void Main()
 {
 	PROCESS_BASIC_INFORMATION pbi = new PROCESS_BASIC_INFORMATION();
-
 	NTSTATUS GetPebAddress = NtQueryInformationProcess(
 		pi.hProcess,
 		0,
@@ -162,7 +161,7 @@ static void Main()
 
 	else
 	{
-		Console.WriteLine(@$". NtQueryInformationProcess SUCCESS!");
+		Console.WriteLine($". NtQueryInformationProcess SUCCESS!");
 		Console.WriteLine($".. Process PEB ADDRESS: 000000{pbi.PebBaseAddress.ToString("X")}");
 	}
 }
@@ -170,3 +169,7 @@ static void Main()
 
 >O PEB (Process Environment Block) se trata de uma estrutura de dados que todo processo possui no Windows. Nesta estrutura, informações importantes sobre o processo em execução são armazenadas, como seu PID, localização de DLLs carregadas, caminho do executável, entre outros.
 {: .prompt-info }
+
+Executando o código acima, obtemos o endereço PEB do executável. Para validarmos se de fato o endereço obtido é referente ao PEB, podemos utilizar o famoso [WinDBG](https://learn.microsoft.com/pt-br/windows-hardware/drivers/debugger/) para compararmos os valores.
+
+<img src= "https://i.imgur.com/8aMkBfy.png" alt="Comparando o PEB com o WinDBG" style="border: 2px solid black;">
