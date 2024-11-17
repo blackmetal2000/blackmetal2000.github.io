@@ -175,25 +175,18 @@ Executando o código acima, obtemos o endereço PEB do executável. Para validar
 
 <img src= "https://i.imgur.com/8aMkBfy.png" alt="Comparando o PEB com o WinDBG" style="border: 2px solid black;">
 
-Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB e representa o endereço inicial que o EXE é mapeado no PE. Rodando o comando `!peb` no WinDBG, podemos verificar que seu offset é no valor de `0x010`. 
+Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB e representa o endereço inicial onde o EXE é mapeado no PE. Rodando o comando `!peb` no WinDBG, podemos verificar que seu offset é no valor de `0x010`. 
 
 <img src= "https://i.imgur.com/G99IQqi.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
-Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao endereço do PEB obtido anteriormente.
+Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao endereço do PEB obtido anteriormente. O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
+$$
+\text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
+$$
 
 ```csharp
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress (RVA): 000000{ImageBaseAddress.ToString("X")}\n");
 ```
 
-<img src= "https://i.imgur.com/euRtpo5.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
-
->O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
-$$
-\text{ImageBaseAddress} = 123 + 0x010
-$$
-{: .prompt-tip }
-
-$$
-\text{ImageBaseAddress} = 123 + 0x010
-$$
+<img src= "https://i.imgur.com/AbwAfLW.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
