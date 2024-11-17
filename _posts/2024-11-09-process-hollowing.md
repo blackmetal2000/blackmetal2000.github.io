@@ -191,6 +191,7 @@ $$
 $$
 
 
+
 ```csharp
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}\n");
