@@ -187,5 +187,8 @@ Console.WriteLine($"... Process ImageBaseAddress (RVA): 000000{ImageBaseAddress.
 
 <img src= "https://i.imgur.com/euRtpo5.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
->O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência era o `ImageBaseAddress`e o offset era de `0x010`. 
+>O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
+$$
+\text{ImageBaseAddress} = 123 + 0x010
+$$
 {: .prompt-tip }
