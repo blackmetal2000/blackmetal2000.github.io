@@ -190,11 +190,37 @@ $$
 \text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
 $$
 
-
-
 ```csharp
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}\n");
 ```
 
 <img src= "https://i.imgur.com/pal67At.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
+
+## ReadProcessMemory
+
+Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, é necessária a obtenção do VA (Virtual Address) completo do `ImageBaseAddress`. Para isso, é necessária operações na memória do processo.
+
+```csharp
+byte[] arrayOne = new byte[0x8];
+bool readProcessMemory_1 = ReadProcessMemory(
+	pi.hProcess,
+	ImageBaseAddress,
+	arrayOne,
+	arrayOne.Length,
+	IntPtr.Zero
+);
+
+if (readProcessMemory_1 == true)
+{
+	IntPtr BaseAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
+	Console.WriteLine($". Base Address (VA): 000000{BaseAddress.ToString("X")}");
+}
+```
+
+>O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
+{: .prompt-tip }
+
+Feito isso, o ponteiro `BaseAddress` será o responsável por armazenar o VA do `ImageBaseAddress`. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
+
+<img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
