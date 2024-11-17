@@ -170,6 +170,11 @@ static void Main()
 >O PEB (Process Environment Block) se trata de uma estrutura de dados que todo processo possui no Windows. Nesta estrutura, informações importantes sobre o processo em execução são armazenadas, como seu PID, localização de DLLs carregadas, caminho do executável, entre outros.
 {: .prompt-info }
 
-Executando o código acima, obtemos o endereço PEB do executável. Para validarmos se de fato o endereço obtido é referente ao PEB, podemos utilizar o famoso [WinDBG](https://learn.microsoft.com/pt-br/windows-hardware/drivers/debugger/) para compararmos os valores.
+Executando o código acima, obtemos o endereço PEB do executável. Para validarmos se de fato o endereço obtido está certo, podemos utilizar o famoso [WinDBG](https://learn.microsoft.com/pt-br/windows-hardware/drivers/debugger/) para compararmos os valores.
 
 <img src= "https://i.imgur.com/8aMkBfy.png" alt="Comparando o PEB com o WinDBG" style="border: 2px solid black;">
+
+>O WinDBG é um depurador que pode ser usado para analisar despejos de memória, depurar código de modo de usuário e modo kernel ao vivo e examinar registros de CPU e memória. A ferramenta é bastente útil quando se precisa debuggar um processo em execução.
+{: .prompt-tip }
+
+Com o endereço PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB.
