@@ -181,11 +181,11 @@ Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `
 Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao endereço do PEB obtido anteriormente.
 
 ```csharp
-IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
-Console.WriteLine($".. Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}");
+IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x10;
+Console.WriteLine($"... Process ImageBaseAddress (RVA): 000000{ImageBaseAddress.ToString("X")}\n");
 ```
 
 <img src= "https://i.imgur.com/euRtpo5.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
->O WinDBG é um depurador que pode ser usado para analisar despejos de memória, depurar código de modo de usuário e modo kernel ao vivo e examinar registros de CPU e memória. A ferramenta é bastente útil quando se precisa debuggar um processo em execução.
+>O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória. Por exemplo, se o ponto de referência for "0x1000" e o offset for "0x010", basta somar os dois valores para acessar o endereço que contém a informação específica. 
 {: .prompt-tip }
