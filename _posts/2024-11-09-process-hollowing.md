@@ -3,6 +3,7 @@ title: "Process Hollowing: uma análise interna."
 date: 2024-11-09 00:00:00 +0800
 categories: [Windows, Process Injection, Shellcode]
 tags: [Red Team]
+math: true
 ---
 
 ![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" }
@@ -192,3 +193,7 @@ $$
 \text{ImageBaseAddress} = 123 + 0x010
 $$
 {: .prompt-tip }
+
+$$
+\text{ImageBaseAddress} = 123 + 0x010
+$$
