@@ -5,7 +5,7 @@ categories: [Windows, Process Injection, Shellcode]
 tags: [Red Team]
 ---
 
-![Desktop View](https://i.imgur.com/XzUPqOm.jpeg){: width="400" height="400" }
+![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" }
 
 O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
@@ -174,7 +174,18 @@ Executando o código acima, obtemos o endereço PEB do executável. Para validar
 
 <img src= "https://i.imgur.com/8aMkBfy.png" alt="Comparando o PEB com o WinDBG" style="border: 2px solid black;">
 
+Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB e representa o endereço inicial que o EXE é mapeado no PE. Rodando o comando `!peb` no WinDBG, podemos verificar que seu offset é no valor de `0x010`. 
+
+<img src= "https://i.imgur.com/G99IQqi.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
+
+Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao endereço do PEB obtido anteriormente.
+
+```csharp
+IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
+Console.WriteLine($".. Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}");
+```
+
+<img src= "https://i.imgur.com/euRtpo5.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
+
 >O WinDBG é um depurador que pode ser usado para analisar despejos de memória, depurar código de modo de usuário e modo kernel ao vivo e examinar registros de CPU e memória. A ferramenta é bastente útil quando se precisa debuggar um processo em execução.
 {: .prompt-tip }
-
-Com o endereço PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB.
