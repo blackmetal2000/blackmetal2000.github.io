@@ -171,7 +171,7 @@ static void Main()
 >O PEB (Process Environment Block) se trata de uma estrutura de dados que todo processo possui no Windows. Nesta estrutura, informações importantes sobre o processo em execução são armazenadas, como seu PID, localização de DLLs carregadas, caminho do executável, entre outros.
 {: .prompt-info }
 
-> Nas capturas de telas abaixo, você pode notar algumas diferenças de valores entre elas. Isso se dá ao fato de que a cada vez que eu executava o programa, um novo processo notepad era criado. Consequentemente, os valores nas prints se diferem. Entretanto, a lógica permanece a mesma.
+> Nas capturas de telas abaixo, você pode notar algumas diferenças de valores. Isso se dá ao fato de que a cada vez que eu executava o código, um novo processo notepad era criado. Consequentemente, os valores nas prints se diferem. Entretanto, a lógica permanece a mesma.
 {: .prompt-warning }
 
 Executando o código acima, obtemos o endereço PEB do executável. Para validarmos se de fato o endereço obtido está certo, podemos utilizar o famoso [WinDBG](https://learn.microsoft.com/pt-br/windows-hardware/drivers/debugger/) para compararmos os valores.
@@ -189,6 +189,7 @@ Para acessar esta informação, basta somar os dois valores (ponto de referênci
 $$
 \text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
 $$
+
 
 ```csharp
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
