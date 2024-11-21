@@ -241,6 +241,6 @@ bool readProcessMemory_2 = ReadProcessMemory(
 
 Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
-- `e_lfanew`: é o último membro da estrutura DOS Header. Seu offset indica o início do NT Header. Definição retirada [deste blog](https://0xrick.github.io/win-internals/pe3/).
+- [`e_lfanew`](https://0xrick.github.io/win-internals/pe3/): é o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
 - `Entrypoint RVA`: próximo passo é novamente realizar operações
 - `Entrypoint VA`: próximo passo é novamente realizar operações
