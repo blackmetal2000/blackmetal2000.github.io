@@ -114,13 +114,13 @@ static void Main()
 >`CREATE_SUSPENDED (0x00000004)`: o valor que define o novo processo como suspenso. Para mais informações, veja esta [documentação](https://learn.microsoft.com/en-us/windows/win32/procthread/process-creation-flags).
 {: .prompt-info }
 
-Executando o código acima, um novo processo "notepad.exe" será criado no modo suspenso. Podemos validá-lo abrindo o nosso gerenciador de tarefas.
+Executando o código acima, um novo processo "notepad.exe" será criado em modo suspenso. Podemos validá-lo abrindo o nosso gerenciador de tarefas.
 
 <img src= "https://i.imgur.com/LU62o94.png" alt="Processo notepad.exe suspenso" style="border: 2px solid black;">
 
 ## NtQueryInformationProcess
 
-Nosso próximo passo é obter o valor do PEB do processo recém-criado, "notepad.exe". Para isso, a API "NtQueryInformationProcess" desempenha esta função.
+Nosso próximo passo é obter o valor do PEB do processo recém-criado. Para isso, a API "NtQueryInformationProcess" desempenha esta função.
 
 ```csharp
 private struct PROCESS_BASIC_INFORMATION
@@ -195,8 +195,6 @@ IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}\n");
 ```
 
-<img src= "https://i.imgur.com/pal67At.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
-
 ## ReadProcessMemory
 
 Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, é necessária a obtenção do VA (Virtual Address) completo do `ImageBaseAddress`. Para isso, é necessária operações na memória do processo.
@@ -213,14 +211,34 @@ bool readProcessMemory_1 = ReadProcessMemory(
 
 if (readProcessMemory_1 == true)
 {
-	IntPtr BaseAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
-	Console.WriteLine($". Base Address (VA): 000000{BaseAddress.ToString("X")}");
+	IntPtr BaseAddressVA = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
+	Console.WriteLine($". Base Address (VA): 000000{BaseAddressVA.ToString("X")}");
 }
 ```
 
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-tip }
 
-Feito isso, o ponteiro `BaseAddress` será o responsável por armazenar o VA do `ImageBaseAddress`. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
+Feito isso, o ponteiro `BaseAddressVA` será o responsável por armazenar o VA do `ImageBaseAddress`. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
+
+Nosso próximo passo é, após obter o VA do `ImageBaseAddress`, novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress`.
+
+```csharp
+byte[] arrayTwo = new byte[0x200];
+bool readProcessMemory_2 = ReadProcessMemory(
+	pi.hProcess,
+	BaseAddress,
+	arrayTwo,
+	arrayTwo.Length,
+	IntPtr.Zero
+);
+```
+
+>O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler os headers do PE. Mais detalhes a seguir.
+{: .prompt-tip }
+
+Feito isso, partiremos para uma nova tarefa: calcular certos campos dos cabeçalhos do PE. São eles:
+
+- `e_lfanew`: quando concebemos o ser mais doce do que nunca
