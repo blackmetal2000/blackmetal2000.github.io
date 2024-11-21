@@ -242,8 +242,9 @@ bool readProcessMemory_2 = ReadProcessMemory(
 Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
 - `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset (`0x3C`) indica o início do NT Header.
-- `Entrypoint RVA e VA`: Este é talvez o campo mais importante do cabeçalho opcional. Nele está contido o endereço do ponto de entrada (entrypoint), abreviado EP, que é onde o código do programa deve começar.
+- `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele está contido o endereço do ponto de entrada (entrypoint), abreviado EP, que é onde o código do programa deve começar.
 
-Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [destes artigos](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
+>Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
+{: .prompt-tip }
 
 [comment]: <> (https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos/opcional)]
