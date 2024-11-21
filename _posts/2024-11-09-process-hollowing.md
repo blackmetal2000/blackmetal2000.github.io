@@ -219,26 +219,28 @@ if (readProcessMemory_1 == true)
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-tip }
 
-Feito isso, o ponteiro `BaseAddressVA` será o responsável por armazenar o VA do `ImageBaseAddress`. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
+Feito isso, o ponteiro `BaseAddressVA` será o responsável por armazenar o VA do `ImageBaseAddress`, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Nosso próximo passo é, após obter o VA do `ImageBaseAddress`, novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress`.
+Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress` na API.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
 bool readProcessMemory_2 = ReadProcessMemory(
 	pi.hProcess,
-	BaseAddress,
+	BaseAddressVA,
 	arrayTwo,
 	arrayTwo.Length,
 	IntPtr.Zero
 );
 ```
 
->O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler os headers do PE. Mais detalhes a seguir.
+>O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler a estrutura do PE.
 {: .prompt-tip }
 
-Feito isso, partiremos para uma nova tarefa: calcular certos campos dos cabeçalhos do PE. São eles:
+Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
-- `e_lfanew`: quando concebemos o ser mais doce do que nunca
+- `e_lfanew`: é o último membro da estrutura DOS Header. Seu offset indica o início do NT Header. Definição retirada [deste blog](https://0xrick.github.io/win-internals/pe3/).
+- `Entrypoint RVA`: próximo passo é novamente realizar operações
+- `Entrypoint VA`: próximo passo é novamente realizar operações
