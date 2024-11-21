@@ -217,7 +217,7 @@ if (readProcessMemory_1 == true)
 ```
 
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
-{: .prompt-tip }
+{: .prompt-info }
 
 Feito isso, o ponteiro `BaseAddressVA` será o responsável por armazenar o VA do `ImageBaseAddress`, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
 
@@ -237,7 +237,7 @@ bool readProcessMemory_2 = ReadProcessMemory(
 ```
 
 >O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler a estrutura do PE.
-{: .prompt-tip }
+{: .prompt-info }
 
 Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
