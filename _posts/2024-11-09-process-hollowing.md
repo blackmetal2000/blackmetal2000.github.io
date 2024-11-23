@@ -197,7 +197,7 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, é necessária a obtenção do VA (Virtual Address) completo do `ImageBaseAddress`. Para isso, é necessária operações na memória do processo.
+Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, faremos a obtenção do endereço base do processo. Para isso, é necessária operações de leitura na memória.
 
 ```csharp
 byte[] arrayOne = new byte[0x8];
@@ -211,25 +211,25 @@ bool readProcessMemory_1 = ReadProcessMemory(
 
 if (readProcessMemory_1 == true)
 {
-	IntPtr BaseAddressVA = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
-	Console.WriteLine($". Base Address (VA): 000000{BaseAddressVA.ToString("X")}");
+	IntPtr ImageBase = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
+	Console.WriteLine($". Base Address: 000000{ImageBase.ToString("X")}");
 }
 ```
 
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-info }
 
-Feito isso, o ponteiro `BaseAddressVA` será o responsável por armazenar o VA do `ImageBaseAddress`, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
+Feito isso, o ponteiro `ImageBase` será o responsável por armazenar o endereço base do processo em execução, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG. Para isso, basta executar o comando `lm`, listando todos os módulos carregados.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress` na API.
+Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço armazenado no ponteiro `ImageBase`.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
 bool readProcessMemory_2 = ReadProcessMemory(
 	pi.hProcess,
-	BaseAddressVA,
+	ImageBase,
 	arrayTwo,
 	arrayTwo.Length,
 	IntPtr.Zero
