@@ -260,8 +260,13 @@ uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
 
->O seu offset ttambém pode ser acessado pelo WinDBG. <img src= "https://i.imgur.com/MYxlbAa.png" alt="" style="border: 2px solid black;">
+>O seu offset também pode ser acessado pelo WinDBG. <img src= "https://i.imgur.com/MYxlbAa.png" alt="" style="border: 2px solid black;">
 {: .prompt-tip }
+
+Antes de finalizarmos este tópico, é importante que tenhamos noção do que se trata VA e RVA. Basicamente, esses conceitos são:
+
+- VA: Virtual Addresses (VAs) são endereços de memória gerado pelo sistema operacional e apresentado a um programa como se fosse o endereço físico real da RAM do computador.
+- RVA: É a diferença entre duas VAs. Neste caso, seu valor é a subtração de uma VA com o Image Base do executável.
 
 O próximo passo é trivial para a execução do shellcode: calcular o EP (EntryPoint). Seu offset é de `0x28`, então precisamos somá-lo com o valor obtido do `e_lfanew` anteriormente. É através do resultado da soma que poderemos acessar o seu RVA (Relative Virtual Address).
 
@@ -282,11 +287,6 @@ Finalmente, antes de escrevermos nosso shellcode, precisamos do VA (Virtual Addr
 ```csharp
 IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
 ```
-
-Antes de finalizarmos este tópico, é importante que tenhamos noção do que se trata VA e RVA. Basicamente, esses conceitos são:
-
-- VA: Virtual Addresses (VAs) são endereços de memória gerado pelo sistema operacional e apresentado a um programa como se fosse o endereço físico real da RAM do computador.
-- RVA: É a diferença entre duas VAs. Neste caso, seu valor é a subtração de uma VA com o Image Base do executável.
 
 ## WriteProcessMemory e ResumeThread
 
