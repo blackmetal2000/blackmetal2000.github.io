@@ -260,10 +260,10 @@ uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
 
->O seu offset também pode ser acessado pelo WinDBG. A sintaxe seria como: `dt _IMAGE_DOS_HEADER @$peb`.
+>O valor também pode ser acessado pelo WinDBG. A sintaxe seria como: `dt _IMAGE_DOS_HEADER @$peb`.
 {: .prompt-tip }
 
-Antes de finalizarmos este tópico, é importante que tenhamos noção do que se trata VA e RVA. Basicamente, esses conceitos são:
+Antes de finalizarmos este tópico, é importante que tenhamos noção de alguns conceitos.
 
 - VA: Virtual Addresses (VAs) são endereços de memória gerado pelo sistema operacional e apresentado a um programa como se fosse o endereço físico real da RAM do computador.
 - RVA: É a diferença entre duas VAs. Neste caso, seu valor é a subtração de uma VA com o Image Base do executável.
@@ -279,10 +279,11 @@ Console.WriteLine($".... PE EntryPoint (RVA): 000000{entrypointRVA.ToString("X")
 
 <img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
 
-
-Por último, antes de escrevermos nosso shellcode, precisamos do endereço completo (VA) do EP. Para isso, é uma operação bem simples. Basta somarmos o valor do RVA do EP com o endereço base.
-
 Finalmente, antes de escrevermos nosso shellcode, precisamos do VA (Virtual Address) do EP. Através do valor obtido de seu RVA, podemos somá-lo com o endereço base do executável (`ImageBase`) para que, assim, tenhamos o valor do VA.
+
+$$
+\text{EntryPointVA} = \text{ImageAddress} + \text{EntryPointRVA}
+$$
 
 ```csharp
 IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
