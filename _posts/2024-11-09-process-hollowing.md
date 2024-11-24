@@ -10,7 +10,7 @@ math: true
 
 O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
-O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental de um executável PE para abusarmos de atributos importantes para a execução do nosso código.
+O interessante dessa técnica é que ela vai além do funcionamento básico de uma injeção de shellcode. Em vez de apenas alocar memória no processo remoto e inserir o shellcode, exploraremos a estrutura fundamental do formato PE para abusarmos de atributos importantes para a execução do nosso código.
 
 ## Introdução
 
@@ -21,7 +21,7 @@ De acordo com o MITRE ATT&CK, a técnica [T1055.012](https://attack.mitre.org/te
 Onde:
 
 - `Hollowing de Processo`: Trata-se da etapa especial do ataque. O atacante irá realizar o "hollowing", ou o "esvaziamento" do conteúdo do processo.
-- `Injeção de Shellcode`: É nesta etapa onde o invasor injeta o conteúdo do shellcode no campo esvaziado do processo.
+- `Injeção de Shellcode`: É nesta etapa onde o invasor injeta o conteúdo do shellcode no campo esvaziado.
 - `Controle de Execução`: Ocorre quando o shellcode é executado.
 
 Sem mais enrolação, partiremos para o código!
@@ -178,7 +178,7 @@ Executando o código acima, obtemos o endereço PEB do executável. Para validar
 
 <img src= "https://i.imgur.com/8aMkBfy.png" alt="Comparando o PEB com o WinDBG" style="border: 2px solid black;">
 
-Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB e representa o endereço inicial onde o EXE é mapeado no PE. Rodando o comando `!peb` no WinDBG, podemos verificar que seu offset é no valor de `0x010`. 
+Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `ImageBaseAddress`. Este atributo é obtido através do PEB e representa o endereço inicial onde o EXE é mapeado. Rodando o comando `!peb` no WinDBG, podemos verificar que seu offset é no valor de `0x010`. 
 
 <img src= "https://i.imgur.com/G99IQqi.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
@@ -197,11 +197,11 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores específicos da estrutura PE. Primeiramente, faremos a obtenção do endereço base do processo. Para isso, é necessária operações de leitura na memória.
+Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, é necessária a obtenção do VA (Virtual Address) completo do `ImageBaseAddress`. Para isso, é necessária operações na memória do processo.
 
 ```csharp
-byte[] arrayOne = new byte[0x8];
-bool readProcessMemory_1 = ReadProcessMemory(
+byte[] arrayOne = new byte[0x8]
+bool getBaseAddress_VA = ReadProcessMemory(
 	pi.hProcess,
 	ImageBaseAddress,
 	arrayOne,
@@ -209,40 +209,40 @@ bool readProcessMemory_1 = ReadProcessMemory(
 	IntPtr.Zero
 );
 
-if (readProcessMemory_1 == true)
+if (getBaseAddress_VA == true)
 {
-	IntPtr ImageBase = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
-	Console.WriteLine($". Base Address: 000000{ImageBase.ToString("X")}");
+	IntPtr ImageAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
+	Console.WriteLine($". Base Address (VA): 000000{ImageAddress.ToString("X")}");
 }
 ```
 
->O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um ponteiro de 64 bits.
+>O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-info }
 
-Feito isso, o ponteiro `ImageBase` será o responsável por armazenar o endereço base do processo em execução. Podemos validá-lo realizando uma comparação com o valor que é retornado no WinDBG. Para isso, basta executar o comando `lm`, listando todos os módulos carregados.
+Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o VA do `ImageBaseAddress`, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Desta vez, realizaremos a mesma operação. Porém, repassando agora o próprio endereço armazenado no ponteiro `ImageBase` na API.
+Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress` na API.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
 bool readProcessMemory_2 = ReadProcessMemory(
 	pi.hProcess,
-	ImageBase,
+	ImageAddress,
 	arrayTwo,
 	arrayTwo.Length,
 	IntPtr.Zero
 );
 ```
 
->O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler a estrutura do PE.
+>O valor de 512 bytes (0x200) foi escolhido para a leitura da estrutura do PE.
 {: .prompt-info }
 
-Agora, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
+Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
 - `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset (`0x3C`) indica o início do NT Header.
-- `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele está contido o endereço do ponto de entrada (entrypoint), abreviado EP, que é onde o código do programa deve começar.
+- `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele, há o endereço do ponto de entrada (EntryPoint), abreviado EP, que é onde o código do programa deve começar.
 
 >Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
