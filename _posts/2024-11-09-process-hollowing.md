@@ -264,13 +264,21 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 
 Com o `e_lfanew` em mãos, partiremos para calcular o EP (EntryPoint). Ele faz parte da estrutura `IMAGE_OPTIONAL_HEADER`, e seu offset é de `128`, ou `0x28`. Com este valor em mãos, basta somarmos seu offset com o `e_lfanewAddr` para obtermos seu RVA.
 
-<img src= "https://i.imgur.com/UUnCeoe.png" alt="" style="border: 2px solid black;">
+<img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
 
 ```csharp
-uint entrypointOffset = e_lfanew + 0x28;
+uint entrypointOffset = e_lfanewAddr + 0x28;
 uint entrypointRVA = BitConverter.ToUInt32(arrayTwo, (int)entrypointOffset);
 
 Console.WriteLine($".... PE EntryPoint (RVA): 000000{entrypointRVA.ToString("X")}\n");
 ```
 
-<img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
+Por último, antes de escrevermos nosso shellcode, precisamos do endereço completo (VA) do EP. Para isso, é uma operação bem simples. Basta somarmos o valor do RVA do EP com o endereço base.
+
+```csharp
+IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
+```
+
+## WriteProcessMemory
+
+Agora, após todos esses passos, temos a região de memória onde queremos sobrescrever nosso shellcode. 
