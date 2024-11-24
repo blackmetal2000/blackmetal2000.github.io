@@ -221,7 +221,7 @@ if (getImageBase == true)
 
 Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o valor que almejamos. Podemos validá-lo realizando uma comparação com o valor que é retornado no comando `lm` do WinDBG.
 
-<img src= "https://i.imgur.com/BEcMGrI.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
+<img src= "https://i.imgur.com/BEcMGrI.png" alt="" style="border: 2px solid black;">
 
 Nosso próximo passo é, novamente, realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API.
 
@@ -249,13 +249,14 @@ Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São
 
 O primeiro passo é calcular o valor do `e_lfanew`. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
-<img src= "https://i.imgur.com/t5Bkx83.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
-
+<img src= "https://i.imgur.com/t5Bkx83.png" alt="" style="border: 2px solid black;">
 
 ```csharp
 uint e_lfanew = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanew.ToString("X")} -> 000000{elfanewPtr.ToString("X")}");
 ```
 
-![Desktop View](https://i.imgur.com/MYxlbAa.png){: width="1000" height="600" .w-50 .right}
-O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
+>O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
+{: .prompt-tip }
+
+<img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
