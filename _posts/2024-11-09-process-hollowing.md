@@ -221,9 +221,9 @@ if (getImageBase == true)
 
 Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o valor que almejamos. Podemos validá-lo realizando uma comparação com o valor que é retornado no comando `lm` do WinDBG.
 
-<img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
+<img src= "https://i.imgur.com/BEcMGrI.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço do `ImageBaseAddress` na API.
+Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
