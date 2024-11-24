@@ -261,3 +261,18 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 >O offset do `e_lfanew` também pode ser acessado pelo WinDBG.
 ![Desktop View](https://i.imgur.com/MYxlbAa.png)
 {: .prompt-tip }
+
+Com o `e_lfanew` em mãos, vamos partir para calcular o EP (EntryPoint). Ele faz parte da estrutura `IMAGE_OPTIONAL_HEADER`, então podemos validar seu offset também utilizando o Pe-Bear.
+
+<img src= "https://i.imgur.com/UUnCeoe.png" alt="" style="border: 2px solid black;">
+
+Como visto, seu offset é de 128. Com este valor em mãos, basta somarmos seu offset com o `e_lfanewAddr` para obtermos seu RVA.
+
+```csharp
+uint entrypointOffset = e_lfanew + 0x28;
+uint entrypointRVA = BitConverter.ToUInt32(arrayTwo, (int)entrypointOffset);
+
+Console.WriteLine($".... PE EntryPoint (RVA): 000000{entrypointRVA.ToString("X")}\n");
+```
+
+<img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
