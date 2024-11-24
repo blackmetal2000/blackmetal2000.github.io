@@ -247,7 +247,7 @@ Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São el
 >Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
 
-O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque será, a partir dele, que acessaremos o cabeçalho seguinte. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
+O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque será, a partir dele, que acessaremos os campos seguintes. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
 <img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
 
@@ -263,9 +263,7 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 >O seu offset ttambém pode ser acessado pelo WinDBG. <img src= "https://i.imgur.com/MYxlbAa.png" alt="" style="border: 2px solid black;">
 {: .prompt-tip }
 
-Com o `e_lfanew` em mãos, partiremos para calcular o EP (EntryPoint). Seu offset é de `128`, ou `0x28`.
-
-<img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
+O próximo passo é trivial para a execução do shellcode: calcular o EP (EntryPoint). Seu offset é de `0x28`, então precisamos somá-lo com o valor obtido do `e_lfanew` anteriormente. É através do resultado da soma que poderemos acessar o seu RVA (Relative Virtual Address).
 
 ```csharp
 uint entrypointOffset = e_lfanewAddr + 0x28;
@@ -273,6 +271,9 @@ uint entrypointRVA = BitConverter.ToUInt32(arrayTwo, (int)entrypointOffset);
 
 Console.WriteLine($".... PE EntryPoint (RVA): 000000{entrypointRVA.ToString("X")}\n");
 ```
+
+<img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
+
 
 Por último, antes de escrevermos nosso shellcode, precisamos do endereço completo (VA) do EP. Para isso, é uma operação bem simples. Basta somarmos o valor do RVA do EP com o endereço base.
 
