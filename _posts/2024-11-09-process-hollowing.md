@@ -249,7 +249,7 @@ Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São
 
 O primeiro passo é calcular o valor do `e_lfanew`. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
-<img src= "https://i.imgur.com/t5Bkx83.png" alt="" style="border: 2px solid black;">
+<img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
 
 ```csharp
 IntPtr e_lfanewValue = ImageAddress + 0x3C;
@@ -260,5 +260,3 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 
 >O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando-se o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
 {: .prompt-tip }
-
-<img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
