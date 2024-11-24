@@ -257,7 +257,5 @@ uint e_lfanew = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanew.ToString("X")} -> 000000{elfanewPtr.ToString("X")}");
 ```
 
-![Desktop View](https://i.imgur.com/t5Bkx83.png){: width="972" height="589" .w-50 .right}
->O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando:
-`dt _IMAGE_DOS_HEADER @$peb`
-{: .prompt-tip }
+![Desktop View](https://i.imgur.com/MYxlbAa.png){: width="1000" height="600" .w-50 .right}
+O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
