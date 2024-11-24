@@ -262,11 +262,9 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 ![Desktop View](https://i.imgur.com/MYxlbAa.png)
 {: .prompt-tip }
 
-Com o `e_lfanew` em mãos, vamos partir para calcular o EP (EntryPoint). Ele faz parte da estrutura `IMAGE_OPTIONAL_HEADER`, então podemos validar seu offset também utilizando o Pe-Bear.
+Com o `e_lfanew` em mãos, partiremos para calcular o EP (EntryPoint). Ele faz parte da estrutura `IMAGE_OPTIONAL_HEADER`, e seu offset é de `128`, ou `0x28`. Com este valor em mãos, basta somarmos seu offset com o `e_lfanewAddr` para obtermos seu RVA.
 
 <img src= "https://i.imgur.com/UUnCeoe.png" alt="" style="border: 2px solid black;">
-
-Como visto, seu offset é de 128. Com este valor em mãos, basta somarmos seu offset com o `e_lfanewAddr` para obtermos seu RVA.
 
 ```csharp
 uint entrypointOffset = e_lfanew + 0x28;
