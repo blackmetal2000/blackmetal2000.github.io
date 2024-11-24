@@ -258,6 +258,6 @@ uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
 
->O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando-se do comando a seguir: `dt _IMAGE_DOS_HEADER @$peb`.
+>O offset do `e_lfanew` também pode ser acessado pelo WinDBG.
 ![Desktop View](https://i.imgur.com/MYxlbAa.png)
 {: .prompt-tip }
