@@ -197,11 +197,11 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, é necessária a obtenção do VA (Virtual Address) completo do `ImageBaseAddress`. Para isso, é necessária operações na memória do processo.
+Agora, a próxima etapa é calcular alguns valores do formato PE. Primeiramente, é necessário ter o valor do endereço base (ImageBase) do executável (notepad.exe) carregado. Para isso, operações de leitura na memória são vitais. De antemão, é repassado o `ImageBaseAddress`, obtido através do PEB, na API.
 
 ```csharp
 byte[] arrayOne = new byte[0x8]
-bool getBaseAddress_VA = ReadProcessMemory(
+bool getImageBase = ReadProcessMemory(
 	pi.hProcess,
 	ImageBaseAddress,
 	arrayOne,
@@ -209,7 +209,7 @@ bool getBaseAddress_VA = ReadProcessMemory(
 	IntPtr.Zero
 );
 
-if (getBaseAddress_VA == true)
+if (getImageBase == true)
 {
 	IntPtr ImageAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
 	Console.WriteLine($". Base Address (VA): 000000{ImageAddress.ToString("X")}");
@@ -219,7 +219,7 @@ if (getBaseAddress_VA == true)
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-info }
 
-Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o VA do `ImageBaseAddress`, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG.
+Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o endereço base do EXE carregado. Podemos validá-lo realizando uma comparação com o valor que é retornado no comando `lm` do WinDBG.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
