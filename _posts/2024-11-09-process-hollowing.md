@@ -252,11 +252,13 @@ O primeiro passo é calcular o valor do `e_lfanew`. O seu offset pode ser consul
 <img src= "https://i.imgur.com/t5Bkx83.png" alt="" style="border: 2px solid black;">
 
 ```csharp
-uint e_lfanew = BitConverter.ToUInt32(arrayTwo, 0x3C);
-Console.WriteLine($".. E_LFANEW: 000000{e_lfanew.ToString("X")} -> 000000{elfanewPtr.ToString("X")}");
+IntPtr e_lfanewValue = ImageAddress + 0x3C;
+uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
+
+Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
 
->O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
+>O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando-se o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`.
 {: .prompt-tip }
 
 <img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
