@@ -197,7 +197,7 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores armazenados nos cabeçalhos do PE. Primeiramente, é necessário ter o endereço base completo do executável carregado. Este valor será armazenado na variável `ImageAddress` 
+Agora, a próxima etapa é calcular alguns valores dos cabeçalhos do PE. Primeiramente, é necessário ter o endereço base completo do executável carregado. Este valor será armazenado na variável `ImageAddress`.
 
 ```csharp
 byte[] arrayOne = new byte[0x8]
@@ -219,11 +219,11 @@ if (getImageBase == true)
 >O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
 {: .prompt-info }
 
-Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o valor que almejamos. Podemos validá-lo realizando uma comparação com o valor que é retornado no comando `lm` do WinDBG.
+Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o valor que almejamos. Podemos validá-lo realizando uma comparação com o valor que é retornado no comando [`lm`](https://learn.microsoft.com/en-us/windows-hardware/drivers/debuggercmds/lm--list-loaded-modules-) do WinDBG.
 
 <img src= "https://i.imgur.com/BEcMGrI.png" alt="" style="border: 2px solid black;">
 
-Nosso próximo passo é, novamente, realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API.
+Nosso próximo passo é, novamente, realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API. Precisamos desta nova leitura para que seja possível ler os cabeçalhos.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
@@ -239,17 +239,19 @@ bool readProcessMemory_2 = ReadProcessMemory(
 >O valor de 512 bytes (0x200) foi escolhido para a leitura da estrutura do PE.
 {: .prompt-info }
 
-Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
+Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São eles:
 
-- `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
+- `e_lfanew`: é um campo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
 - `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele, há o endereço do ponto de entrada (EntryPoint), abreviado EP, que é onde o código do programa deve começar.
 
 >Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
 
-O primeiro passo é calcular o valor do `e_lfanew`. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
+O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque será, a partir dele, que acessaremos o cabeçalho seguinte. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
 <img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
+
+Como vimos, seu offset está no valor de `0x3C`, conforme ilustrado na figura acima. Para acessarmos o seu valor, a tarefa é simples, basta utilizarmos o `BitConverter` para acessarmos o seu endereço. 
 
 ```csharp
 IntPtr e_lfanewValue = ImageAddress + 0x3C;
@@ -260,6 +262,8 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 
 >O offset do `e_lfanew` também pode ser acessado pelo WinDBG.
 ![Desktop View](https://i.imgur.com/MYxlbAa.png)
+| ![Desktop View](https://i.imgur.com/MYxlbAa.png) |
+|-|
 {: .prompt-tip }
 
 Com o `e_lfanew` em mãos, partiremos para calcular o EP (EntryPoint). Ele faz parte da estrutura `IMAGE_OPTIONAL_HEADER`, e seu offset é de `128`, ou `0x28`. Com este valor em mãos, basta somarmos seu offset com o `e_lfanewAddr` para obtermos seu RVA.
