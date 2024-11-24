@@ -223,7 +223,7 @@ Feito isso, o ponteiro `ImageAddress` será o responsável por armazenar o valor
 
 <img src= "https://i.imgur.com/BEcMGrI.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API.
+Nosso próximo passo é, novamente, realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço base na API.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
@@ -241,10 +241,19 @@ bool readProcessMemory_2 = ReadProcessMemory(
 
 Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
-- `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset (`0x3C`) indica o início do NT Header.
+- `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
 - `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele, há o endereço do ponto de entrada (EntryPoint), abreviado EP, que é onde o código do programa deve começar.
 
 >Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
 
-[comment]: <> (https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos/opcional)]
+O primeiro passo é calcular o valor do `e_lfanew`. É através dele que partiremos para os outros cabeçalhos. O seu offset pode ser consultado também pelo WinDBG, executando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`. Entretanto, ele também pode ser analisado utilizando o [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
+
+<img src= "https://i.imgur.com/t5Bkx83.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
+
+
+```csharp
+uint e_lfanew = BitConverter.ToUInt32(arrayTwo, 0x3C);
+Console.WriteLine($".. E_LFANEW: 000000{e_lfanew.ToString("X")} -> 000000{elfanewPtr.ToString("X")}");
+
+```
