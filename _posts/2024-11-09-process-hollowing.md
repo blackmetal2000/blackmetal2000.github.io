@@ -197,7 +197,7 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores específicos relacionados ao processo. Primeiramente, faremos a obtenção do endereço base do processo. Para isso, é necessária operações de leitura na memória.
+Agora, a próxima etapa é calcular alguns valores específicos da estrutura PE. Primeiramente, faremos a obtenção do endereço base do processo. Para isso, é necessária operações de leitura na memória.
 
 ```csharp
 byte[] arrayOne = new byte[0x8];
@@ -216,14 +216,14 @@ if (readProcessMemory_1 == true)
 }
 ```
 
->O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um valor inteiro de 64 bits.
+>O valor de 8 bytes foi escolhido porque ele corresponde ao tamanho de um ponteiro de 64 bits.
 {: .prompt-info }
 
-Feito isso, o ponteiro `ImageBase` será o responsável por armazenar o endereço base do processo em execução, obtido através do PEB. Podemos validar isso realizando uma comparação com o valor que é retornado no WinDBG. Para isso, basta executar o comando `lm`, listando todos os módulos carregados.
+Feito isso, o ponteiro `ImageBase` será o responsável por armazenar o endereço base do processo em execução. Podemos validá-lo realizando uma comparação com o valor que é retornado no WinDBG. Para isso, basta executar o comando `lm`, listando todos os módulos carregados.
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Nosso próximo passo é novamente realizar operações de leitura de memória. Porém, desta vez, repassando o próprio endereço armazenado no ponteiro `ImageBase`.
+Desta vez, realizamos a mesma operação. Porém, repassando agora o próprio endereço armazenado no ponteiro `ImageBase`.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
