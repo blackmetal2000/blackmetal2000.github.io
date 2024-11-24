@@ -247,7 +247,7 @@ Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São
 >Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
 
-O primeiro passo é calcular o valor do `e_lfanew`. É através dele que partiremos para os outros cabeçalhos. O seu offset pode ser consultado também pelo WinDBG, executando o seguinte comando: `dt _IMAGE_DOS_HEADER @$peb`. Entretanto, ele também pode ser analisado utilizando o [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
+O primeiro passo é calcular o valor do `e_lfanew`. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
 <img src= "https://i.imgur.com/t5Bkx83.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
@@ -255,5 +255,8 @@ O primeiro passo é calcular o valor do `e_lfanew`. É através dele que partire
 ```csharp
 uint e_lfanew = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanew.ToString("X")} -> 000000{elfanewPtr.ToString("X")}");
-
 ```
+
+>O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando o seguinte comando:
+`dt _IMAGE_DOS_HEADER @$peb`
+{: .prompt-info }
