@@ -259,4 +259,5 @@ Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_
 ```
 
 >O offset do `e_lfanew` também pode ser acessado pelo WinDBG, utilizando-se do comando a seguir: `dt _IMAGE_DOS_HEADER @$peb`.
+![Desktop View](https://i.imgur.com/MYxlbAa.png)
 {: .prompt-tip }
