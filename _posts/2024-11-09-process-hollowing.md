@@ -251,7 +251,7 @@ O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque ser
 
 <img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
 
-Como vimos, seu offset está no valor de `0x3C`, conforme ilustrado na figura acima. Para acessarmos o seu valor, a tarefa é simples, basta utilizarmos o `BitConverter` para acessarmos o seu endereço. 
+Como vimos, seu offset está no valor de `0x3C`, conforme ilustrado na figura acima. Como o campo é de 4 bytes, então será utilizada a chamada `ToUInt32`.
 
 ```csharp
 IntPtr e_lfanewValue = ImageAddress + 0x3C;
@@ -260,7 +260,7 @@ uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
 
->O offset do `e_lfanew` também pode ser acessado pelo WinDBG. <img src= "https://i.imgur.com/MYxlbAa.png" alt="" style="border: 2px solid black;">
+>O seu offset ttambém pode ser acessado pelo WinDBG. <img src= "https://i.imgur.com/MYxlbAa.png" alt="" style="border: 2px solid black;">
 {: .prompt-tip }
 
 Com o `e_lfanew` em mãos, partiremos para calcular o EP (EntryPoint). Seu offset é de `128`, ou `0x28`.
