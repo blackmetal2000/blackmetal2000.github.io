@@ -223,7 +223,7 @@ Feito isso, o ponteiro `ImageBase` será o responsável por armazenar o endereç
 
 <img src= "https://i.imgur.com/UoaWPiB.png" alt="VA do ImageBaseAddress" style="border: 2px solid black;">
 
-Desta vez, realizamos a mesma operação. Porém, repassando agora o próprio endereço armazenado no ponteiro `ImageBase`.
+Desta vez, realizaremos a mesma operação. Porém, repassando agora o próprio endereço armazenado no ponteiro `ImageBase` na API.
 
 ```csharp
 byte[] arrayTwo = new byte[0x200];
@@ -239,7 +239,7 @@ bool readProcessMemory_2 = ReadProcessMemory(
 >O valor de 512 bytes (0x200) foi escolhido porque ele corresponde ao tamanho necessário para ler a estrutura do PE.
 {: .prompt-info }
 
-Feito isso, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
+Agora, partiremos para uma nova tarefa: calcular certos valores do PE. São eles:
 
 - `e_lfanew`: é um capo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset (`0x3C`) indica o início do NT Header.
 - `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele está contido o endereço do ponto de entrada (entrypoint), abreviado EP, que é onde o código do programa deve começar.
