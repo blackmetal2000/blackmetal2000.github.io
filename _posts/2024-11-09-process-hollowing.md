@@ -304,7 +304,7 @@ bool writeMemBool = WriteProcessMemory(
 	out IntPtr bytesWritten // quantos bytes foram escritos
 );
 
-if (writeMemBool == true) ResumeThread(pi.hThread);
+if (writeMemBool == true) ResumeThread(pi.hThread); // põe em execução a primeira thread do processo
 ```
 
 Caso a execução da API seja realizada com sucesso, ao resumirmos o processo (já que ele encontra-se em estado suspenso), o nosso shellcode será executado como primeira instrução do executável.
