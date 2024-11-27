@@ -279,7 +279,7 @@ Console.WriteLine($".... PE EntryPoint (RVA): 000000{entrypointRVA.ToString("X")
 
 <img src= "https://i.imgur.com/3Lobkhc.png" alt="" style="border: 2px solid black;">
 
-Finalmente, antes de escrevermos nosso shellcode, precisamos do VA (Virtual Address) do EP. Através do valor obtido de seu RVA, podemos somá-lo com o endereço base do executável (`ImageBase`) para que, assim, tenhamos o valor do VA.
+Agora, antes de escrevermos nosso shellcode, precisamos do VA (Virtual Address) do EP. Através do valor obtido de seu RVA, podemos somá-lo com o endereço base do executável.
 
 $$
 \text{EntryPointVA} = \text{ImageAddress} + \text{EntryPointRVA}
@@ -291,10 +291,11 @@ IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
 
 ## WriteProcessMemory e ResumeThread
 
-Agora, após todos esses passos, temos a região de memória onde queremos sobrescrever nosso shellcode. 
+Finalmente, temos a região de memória que iremos sobrescrever o nosso shellcode. É esta região que era a responsável pelo "conteúdo" do notepad. Agora, já esvaziada, podemos utilizar a API "WriteProcessMemory" para realizar a nossa operação.
 
 ```csharp
 byte[] buf = File.ReadAllBytes("msgbox64.bin"); // shellcode
+
 bool writeMemBool = WriteProcessMemory(
 	pi.hProcess, // handle do processo
 	EntrypointAddressPtr, // VA do EP
@@ -306,4 +307,6 @@ bool writeMemBool = WriteProcessMemory(
 if (writeMemBool == true) ResumeThread(pi.hThread);
 ```
 
-Caso a escrita na região de memória que anteriormente era o EntryPoint, ao retomarmos a execução do processo anteriormente suspenso, o nosso shellcode será executado.
+Caso a execução da API seja realizada com sucesso, ao resumirmos o processo (já que ele encontra-se em estado suspenso), o nosso shellcode será executado como primeira instrução do executável.
+
+![gif](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
