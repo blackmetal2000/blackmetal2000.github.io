@@ -291,7 +291,7 @@ IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
 
 ## WriteProcessMemory e ResumeThread
 
-Finalmente, temos a região de memória que iremos sobrescrever o nosso shellcode. É esta região que era a responsável pelo "conteúdo" do notepad. Agora, já esvaziada, podemos utilizar a API "WriteProcessMemory" para realizar a nossa operação.
+Por fim, chegamos à região de memória onde iremos sobrescrever com o nosso shellcode. Essa área anteriormente era responsável por armazenar o "conteúdo" do notepad. Agora que está esvaziada, podemos utilizá-la para nossas operações. Para isso, empregaremos a API "WriteProcessMemory".
 
 ```csharp
 byte[] buf = File.ReadAllBytes("msgbox64.bin"); // shellcode
@@ -304,9 +304,9 @@ bool writeMemBool = WriteProcessMemory(
 	out IntPtr bytesWritten // quantos bytes foram escritos
 );
 
-if (writeMemBool == true) ResumeThread(pi.hThread); // põe em execução a primeira thread do processo
+if (writeMemBool == true) ResumeThread(pi.hThread);
 ```
 
-Caso a execução da API seja realizada com sucesso, ao resumirmos o processo (já que ele encontra-se em estado suspenso), o nosso shellcode será executado como primeira instrução do executável.
+Se a execução da API for bem-sucedida, ao retomarmos o processo (que se encontra em estado suspenso), o shellcode será executado como a primeira instrução do executável.
 
 ![gif](https://media.giphy.com/media/vFKqnCdLPNOKc/giphy.gif)
