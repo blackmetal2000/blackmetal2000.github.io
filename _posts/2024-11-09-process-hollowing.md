@@ -182,9 +182,7 @@ Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `
 
 <img src= "https://i.imgur.com/G99IQqi.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
-Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao endereço do PEB obtido anteriormente. O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória.
-
-Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
+Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao valor do PEB obtido anteriormente. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
 
 $$
 \text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
@@ -194,6 +192,9 @@ $$
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}\n");
 ```
+
+>O termo "offset" serve para identificar onde uma informação específica está localizada em relação a um ponto de referência dentro de uma região de memória.
+{: .prompt-info }
 
 ## ReadProcessMemory
 
