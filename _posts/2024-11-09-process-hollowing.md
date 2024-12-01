@@ -184,10 +184,6 @@ Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `
 
 Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao valor do PEB obtido anteriormente.
 
-$$
-\text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
-$$
-
 ```csharp
 IntPtr ImageBaseAddress = pbi.PebBaseAddress + 0x010;
 Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToString("X")}\n");
