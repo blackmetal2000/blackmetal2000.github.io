@@ -182,7 +182,7 @@ Com o PEB em mãos, partiremos para uma tarefa importante da técnica: obter o `
 
 <img src= "https://i.imgur.com/G99IQqi.png" alt="Offset do ImageBaseAddress" style="border: 2px solid black;">
 
-Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao valor do PEB obtido anteriormente. Para acessar esta informação, basta somar os dois valores (ponto de referência + offset). Neste caso, o ponto de referência é o endereço PEB e o offset é de `0x010`. Logo, a fórmula ficaria como:
+Logo, para obtermos o `ImageBaseAddress`, basta somarmos o valor `0x010` ao valor do PEB obtido anteriormente.
 
 $$
 \text{ImageBaseAddress} = 0000005A0C2DC000 + 0x010
@@ -198,7 +198,7 @@ Console.WriteLine($"... Process ImageBaseAddress: 000000{ImageBaseAddress.ToStri
 
 ## ReadProcessMemory
 
-Agora, a próxima etapa é calcular alguns valores dos cabeçalhos do PE. Primeiramente, é necessário ter o endereço base completo do executável carregado. Este valor será armazenado na variável `ImageAddress`.
+Agora, a próxima etapa é calcular alguns valores dos cabeçalhos do PE. Primeiramente, é necessário ter o endereço base completo do executável carregado. Para isso, precisamos ler a região de memória correspondente ao `ImageBaseAddress`. Este valor será armazenado na variável `ImageAddress`.
 
 ```csharp
 byte[] arrayOne = new byte[0x8]
@@ -236,9 +236,6 @@ bool readProcessMemory_2 = ReadProcessMemory(
 	IntPtr.Zero
 );
 ```
-
->O valor de 512 bytes (0x200) foi escolhido para a leitura da estrutura do PE.
-{: .prompt-info }
 
 Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São eles:
 
