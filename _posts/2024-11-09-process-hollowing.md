@@ -310,8 +310,6 @@ if (writeMemBool == true) ResumeThread(pi.hThread);
 
 Como mostrado no código acima, passamos o handle do processo recém-criado como o primeiro argumento, e, seguidamente, a região de memória que será sobrescrita, que corresponde ao endereço de entrada (EP) do executável (PE).
 
-Após essa operação, retomamos a execução do processo utilizando a API ResumeThread. Essa função é responsável por retomar a execução da thread. É repassado como argumento `pi.hThread`, que corresponde à primeira thread inicial do processo.
-
-Se a execução da API for bem-sucedida, ao retomarmos o processo (que se encontra em estado suspenso), o shellcode será executado como a primeira instrução do executável.
+Após essa operação, retomamos a execução do processo utilizando a API ResumeThread. Se a execução da API for bem-sucedida, ao retomarmos o processo (que se encontra em estado suspenso), o shellcode será executado como a primeira instrução do executável.
 
 ![gif](https://i.imgur.com/cZszC3y.gif)
