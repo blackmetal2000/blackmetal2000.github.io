@@ -6,7 +6,7 @@ tags: [Red Team]
 math: true
 ---
 
-![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" }
+![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" .w-50 .left}
 
 O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
@@ -250,7 +250,7 @@ Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São el
 - `e_lfanew`: é um campo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
 - `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele, há o endereço do ponto de entrada (EntryPoint), abreviado EP, que é onde o código do programa deve começar.
 
->Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura [deste GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
+>Para aprofundar-se em cabeçalhos do formato PE, recomendo a leitura deste [GitBook](https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe/cabecalhos) do [Mente Binária](https://www.mentebinaria.com.br/).
 {: .prompt-tip }
 
 O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque será, a partir dele, que acessaremos os campos seguintes. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
