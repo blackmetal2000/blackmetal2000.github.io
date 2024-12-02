@@ -336,5 +336,15 @@ Após essa operação, retomamos a execução do processo utilizando a API Resum
 
 ## Conclusão
 
-Ao término desta leitura, buscamos compreender métodos alternativos de execução de shellcode em processos remotos. Em nosso estudo, criamos um processo em estado suspenso para, posteriormente, "esvaziar" o seu conteúdo e substituí-lo com o nosso shellcode. Feito isso, ao retomarmos sua execução, o nosso código malicioso é executado como primeira instrução do executável!
+Ao término desta leitura, buscamos compreender métodos alternativos de injeção em processos remotos. Em nosso estudo, criamos um processo em estado suspenso para, posteriormente, "esvaziar" o seu conteúdo e substituí-lo com o nosso shellcode. Feito isso, ao retomarmos sua execução, o nosso código malicioso é executado como primeira instrução do executável!
 
+## Referências
+
+<https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa>
+<https://learn.microsoft.com/pt-br/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess>
+<https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-readprocessmemory>
+<https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory>
+<https://learn.microsoft.com/pt-br/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread>
+<https://memn0ps.github.io/process-hollowing/>
+<https://github.com/m0n0ph1/Process-Hollowing>
+<https://trustedsec.com/blog/the-nightmare-of-proc-hollows-exe>
