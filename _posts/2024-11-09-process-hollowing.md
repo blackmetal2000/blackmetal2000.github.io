@@ -6,7 +6,7 @@ tags: [Red Team]
 math: true
 ---
 
-![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" .w-50 .left}
+![Desktop View](https://i.imgur.com/nQcUqAA.png){: width="400" height="400" }
 
 O Windows não deixa a desejar quando o assunto é Process Injection. Diferentes técnicas de injeção de shellcodes em processos locais/remotos são descobertas e publicadas para pesquisa. Dentre elas, uma que me chamou bastante atenção, e que é o assunto que abordaremos hoje, é a técnica de **Process Hollowing**!
 
@@ -333,3 +333,8 @@ Como mostrado no código acima, passamos o handle do processo recém-criado como
 Após essa operação, retomamos a execução do processo utilizando a API ResumeThread. Se a execução da API for bem-sucedida, ao retomarmos o processo (que se encontra em estado suspenso), o shellcode será executado como a primeira instrução do executável.
 
 ![gif](https://i.imgur.com/cZszC3y.gif)
+
+## Conclusão
+
+![Desktop View](https://upload.wikimedia.org/wikipedia/pt/1/11/Windows_3.0_logo.svg.png){: width="972" height="589" .w-50 .left}
+Praesent maximus aliquam sapien. Sed vel neque in dolor pulvinar auctor. Maecenas pharetra, sem sit amet interdum posuere, tellus lacus eleifend magna, ac lobortis felis ipsum id sapien. Proin ornare rutrum metus, ac convallis diam volutpat sit amet. Phasellus volutpat, elit sit amet tincidunt mollis, felis mi scelerisque mauris, ut facilisis leo magna accumsan sapien. In rutrum vehicula nisl eget tempor. Nullam maximus ullamcorper libero non maximus. Integer ultricies velit id convallis varius. Praesent eu nisl eu urna finibus ultrices id nec ex. Mauris ac mattis quam. Fusce aliquam est nec sapien bibendum, vitae malesuada ligula condimentum.
