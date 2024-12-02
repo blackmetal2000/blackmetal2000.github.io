@@ -348,3 +348,4 @@ Ao término desta leitura, buscamos compreender métodos alternativos de injeç�
 - <https://memn0ps.github.io/process-hollowing/>
 - <https://github.com/m0n0ph1/Process-Hollowing>
 - <https://trustedsec.com/blog/the-nightmare-of-proc-hollows-exe>
+- <https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe>
