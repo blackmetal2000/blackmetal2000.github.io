@@ -336,7 +336,7 @@ Após essa operação, retomamos a execução do processo utilizando a API Resum
 
 ## Conclusão
 
-Ao término desta leitura, buscamos compreender métodos alternativos de injeção em processos remotos. Em nosso estudo, criamos um processo em estado suspenso para, posteriormente, "esvaziar" o seu conteúdo e substituí-lo com o nosso shellcode. Feito isso, ao retomarmos sua execução, o nosso código malicioso é executado como primeira instrução do executável!
+Ao término desta leitura, buscamos compreender métodos alternativos de injeção de shellcode em processos remotos. Diferentemente dos métodos convencionais, o atacante não precisa alocar memória no processo-alvo, o que ajuda a evadir defesas como EDRs e XDRs. Além do mais, visitamos brevemente conceitos da estrutura do formato PE para que o ataque ocorresse. Espero que tenham gostado!
 
 ## Referências
 
