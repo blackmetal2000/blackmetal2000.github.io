@@ -336,7 +336,9 @@ Após essa operação, retomamos a execução do processo utilizando a API Resum
 
 ## Conclusão
 
-Ao término desta leitura, buscamos compreender métodos alternativos de injeção de shellcode em processos remotos. Diferentemente dos métodos convencionais, o atacante não precisa alocar memória no processo-alvo, o que ajuda a evadir defesas como EDRs e XDRs. Além do mais, visitamos brevemente conceitos da estrutura do formato PE para que o ataque ocorresse. Espero que tenham gostado!
+Ao término desta leitura, buscamos compreender métodos alternativos de injeção de shellcode em processos remotos. Diferentemente dos métodos convencionais, o atacante não precisa alocar memória no processo-alvo, o que ajuda a evadir defesas como EDRs e XDRs.
+
+Além do mais, visitamos brevemente conceitos da estrutura do formato PE para que o ataque ocorresse. Vimos a sua função, para o que serviam no ataque, e como calculá-las. Espero que tenham gostado!
 
 ## Referências
 
