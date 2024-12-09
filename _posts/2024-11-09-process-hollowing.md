@@ -332,8 +332,6 @@ Como mostrado no código acima, passamos o handle do processo recém-criado como
 
 Após essa operação, retomamos a execução do processo utilizando a API ResumeThread. Se a execução da API for bem-sucedida, ao retomarmos o processo (que se encontra em estado suspenso), o shellcode será executado como a primeira instrução do executável.
 
-![gif](https://i.imgur.com/cZszC3y.gif)
-
 <img src= "https://i.imgur.com/cZszC3y.gif" alt="" style="border: 2px solid black;">
 
 ## Conclusão
