@@ -343,12 +343,12 @@ Além do mais, visitamos brevemente conceitos da estrutura do formato PE para qu
 ## Referências
 
 - <https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-createprocessa>
-- <https://learn.microsoft.com/pt-br/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess>
-- <https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-readprocessmemory>
-- <https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory>
 - <https://learn.microsoft.com/pt-br/windows/win32/api/processthreadsapi/nf-processthreadsapi-resumethread>
-- <https://memn0ps.github.io/process-hollowing/>
-- <https://github.com/m0n0ph1/Process-Hollowing>
-- <https://trustedsec.com/blog/the-nightmare-of-proc-hollows-exe>
+- <https://learn.microsoft.com/pt-br/windows/win32/api/winternl/nf-winternl-ntqueryinformationprocess>
+- <https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-writeprocessmemory>
+- <https://learn.microsoft.com/en-us/windows/win32/api/memoryapi/nf-memoryapi-readprocessmemory>
 - <https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe>
+- <https://trustedsec.com/blog/the-nightmare-of-proc-hollows-exe>
+- <https://github.com/m0n0ph1/Process-Hollowing>
+- <https://memn0ps.github.io/process-hollowing/>
 - <https://youtu.be/BVhHLwhvOf4>
