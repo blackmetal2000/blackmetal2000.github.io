@@ -255,17 +255,16 @@ Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São el
 
 O primeiro passo é calcular o valor do `e_lfanew`. Ele é importante porque será, a partir dele, que acessaremos os campos seguintes. O seu offset pode ser consultado utilizando a plataforma [Pe-Bear](https://hshrzd.wordpress.com/pe-bear/).
 
+<img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
+
+Como vimos, seu offset está no valor de `0x3C`, conforme ilustrado na figura acima. Como o campo é de 4 bytes, então será utilizada a chamada `ToUInt32`.
+
 ```csharp
 IntPtr e_lfanewValue = ImageAddress + 0x3C;
 uint e_lfanewAddr = BitConverter.ToUInt32(arrayTwo, 0x3C);
 
 Console.WriteLine($".. E_LFANEW: 000000{e_lfanewAddr.ToString("X")} -> 000000{e_lfanewValue.ToString("X")}");
 ```
-
-<img src= "https://i.imgur.com/qwfkAVH.png" alt="" style="border: 2px solid black;">
-
-Como vimos, seu offset está no valor de `0x3C`, conforme ilustrado na figura acima. Como o campo é de 4 bytes, então será utilizada a chamada `ToUInt32`.
-
 
 >O valor também pode ser acessado pelo WinDBG. A sintaxe seria como: `dt _IMAGE_DOS_HEADER @$peb`.
 {: .prompt-tip }
