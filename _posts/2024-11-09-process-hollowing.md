@@ -351,3 +351,4 @@ Além do mais, visitamos brevemente conceitos da estrutura do formato PE para qu
 - <https://github.com/m0n0ph1/Process-Hollowing>
 - <https://trustedsec.com/blog/the-nightmare-of-proc-hollows-exe>
 - <https://mentebinaria.gitbook.io/engenharia-reversa/o-formato-pe>
+- <https://youtu.be/BVhHLwhvOf4>
