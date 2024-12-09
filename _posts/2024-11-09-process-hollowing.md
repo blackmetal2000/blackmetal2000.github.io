@@ -334,6 +334,8 @@ Após essa operação, retomamos a execução do processo utilizando a API Resum
 
 ![gif](https://i.imgur.com/cZszC3y.gif)
 
+<img src= "https://i.imgur.com/cZszC3y.gif" alt="" style="border: 2px solid black;">
+
 ## Conclusão
 
 Ao término desta leitura, buscamos compreender métodos alternativos de injeção de shellcode em processos remotos. Diferentemente dos métodos convencionais, o atacante não precisa alocar memória no processo-alvo, o que ajuda a evadir defesas como EDRs e XDRs.
