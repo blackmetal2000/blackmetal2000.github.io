@@ -245,7 +245,7 @@ bool readProcessMemory_2 = ReadProcessMemory(
 );
 ```
 
-Feito isso, partiremos para uma nova tarefa: calcular os valores abaixo. São eles:
+Feito isso, partiremos para uma nova tarefa: calcular alguns valores dos cabeçalhos. São eles:
 
 - `e_lfanew`: é um campo de 4 bytes, e o último membro da estrutura DOS Header. Seu offset indica o início do NT Header.
 - `Entrypoint RVA e VA`: Este é talvez o campo mais importante da estrutura `IMAGE_OPTIONAL_HEADER`. Nele, há o endereço do ponto de entrada (EntryPoint), abreviado EP, que é onde o código do programa deve começar.
