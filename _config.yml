@@ -73,8 +73,7 @@ theme_mode: # [light|dark]
 img_cdn:
 
 # the avatar on sidebar, support local or CORS resources
-avatar: https://ddragon.leagueoflegends.com/cdn/img/champion/splash/Velkoz_0.jpg
-
+avatar: https://i.imgur.com/7FWKKfY.jpeg
 # boolean type, the global switch for TOC in posts.
 toc: true
 
